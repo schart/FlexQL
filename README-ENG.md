@@ -1,130 +1,59 @@
-Sure! Here’s the English version of your README for **FlexQL** with the same structure and clarity:
+# FlexQL
 
----
+A simple, powerful query language for data filtering without complex SQL or ORM queries.
 
-# 📄 FlexQL
+**Query example:** `username==heja;age>18;status==active`
 
-**FlexQL** is a simple yet powerful query language designed for data filtering and querying.
-It allows you to define conditions easily without writing complex SQL or ORM queries.
+## Features
 
-Example query:
+- **Human-readable syntax** with intuitive operators
+- **Secure parsing** via lexer/parser architecture
+- **Adaptable** to any database through adapter system
+- **Validated** syntax and type checking
 
-```
-username==heja;age>18;status==active
-```
+## How It Works
 
----
+### Lexer → Parser → Adapter
 
-## 🚀 Features
+1. **Lexer** tokenizes query strings into meaningful components
+2. **Parser** validates syntax and creates Abstract Syntax Tree (AST)
+3. **Adapter** converts AST to target format (SQL, MongoDB, Elasticsearch, etc.)
 
-- **Readable Syntax** → Easy for humans to understand.
-- **Parser + Lexer Architecture** → Fast and secure query parsing.
-- **Adapter System** → Easily integrate with your desired database or query engine.
-- **Type & Syntax Validation** → Catch incorrect queries before execution.
+### Syntax
 
----
+| Element         | Purpose            | Examples                         |
+| --------------- | ------------------ | -------------------------------- |
+| **Identifiers** | Column names       | `username`, `age`, `status`      |
+| **Operators**   | Comparisons        | `==`, `!=`, `>`, `<`, `>=`, `<=` |
+| **Logic**       | Combine conditions | `;` (AND), `,` (OR)              |
+| **Values**      | Data to match      | `"heja"`, `18`, `true`           |
 
-## 📦 Components
-
-### 1️⃣ Lexer
-
-The Lexer breaks the incoming query string into small meaningful pieces called **tokens**.
-Example:
-
-```
-username==heja;age>18
-```
-
-Lexer output:
-
-```json
-[
-  { "type": "IDENTIFIER", "value": "username" },
-  { "type": "OPERATOR", "value": "==" },
-  { "type": "VALUE", "value": "heja" },
-  { "type": "SEPARATOR", "value": ";" },
-  { "type": "IDENTIFIER", "value": "age" },
-  { "type": "OPERATOR", "value": ">" },
-  { "type": "VALUE", "value": "18" }
-]
-```
-
-🔹 Benefit → Makes queries safe and manageable.
-
----
-
-### 2️⃣ Parser
-
-The Parser takes tokens from the Lexer and validates whether the query is **semantically correct**.
-For example:
-
-- `username==heja` ✅ Valid
-- `==heja` ❌ Invalid (missing IDENTIFIER)
-
-The Parser also transforms tokens into an **AST** (Abstract Syntax Tree) that can be processed by the backend.
-
----
-
-### 3️⃣ Adapter
-
-The Adapter converts the parsed structure into a format suitable for your target system.
-Examples:
-
-- **SQL Adapter** → Generates SQL `WHERE` clause.
-- **MongoDB Adapter** → Creates MongoDB query object.
-- **Elasticsearch Adapter** → Converts to Elasticsearch DSL format.
-
-This allows you to connect FlexQL to any data source you want.
-
----
-
-## 📌 Syntax Rules
-
-- **IDENTIFIER** → Column names (`username`, `age`, `status`)
-- **OPERATORS** → `==`, `!=`, `>`, `<`, `>=`, `<=`
-- **LOGICAL** → `,` (OR), `;` (AND)
-- **VALUE** → Column values (`heja`, `18`, `active`)
-
----
-
-## 💡 Examples
+## Examples
 
 ```
 username==heja
 age>18;status==active
 country!=us;score>=100
-username==heja,username==corci
+username==heja,username==admin
 ```
 
----
-
-## 🎯 Benefits
-
-- **Standardized Filtering** → A common language across all services.
-- **Security** → Controlled parsing instead of raw query execution.
-- **Portability** → One language for multiple data sources.
-- **Easy Integration** → Adaptable to any system via adapters.
-
----
-
-## 🔧 Installation
+## Installation & Usage
 
 ```bash
 npm install flexql
 ```
-
----
-
-## 📜 Usage
 
 ```javascript
 import { FlexQL } from "flexql";
 
 const query = "username==heja;age>18";
 const ast = FlexQL.parse(query, { adapter: "raw-sql" });
-
 console.log(ast);
-// Convert with adapter to your desired format (currently only raw-sql supported)
 ```
 
----
+## Benefits
+
+- **Standardized** filtering across services
+- **Secure** - no raw query injection
+- **Portable** - one syntax for multiple databases
+- **Extensible** - add adapters for any data source
