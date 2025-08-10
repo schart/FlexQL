@@ -69,7 +69,6 @@ export class Lexer {
     let virtualPos: number = this.pos - 1;
 
     while (virtualPos >= 0 && !Separators.includes(this.data[virtualPos])) {
-      //
       const current: string = this.data[virtualPos];
       identifier += current;
       virtualPos--;

@@ -1,20 +1,15 @@
 import { LinkedListInterface } from "@/structures";
 
 export class SQLAdapter {
-  //   export interface LinkedListInterface {
-  //   logic: string | null; // AND = ; - OR = ,
-  //   comparison: any; // { column: username, op: ==, value: Joe }
-  //   next: LinkedListInterface | null;
-  // }
-
   public main(): string {
     const whConditions = this.generateRawSQL();
     console.log("Generated wh conditions => ", whConditions);
-    return "";
+    return whConditions;
   }
 
   generateRawSQL() {
     let current: any = this.ast;
+    this.whConditions.push("WHERE");
 
     while (current != null) {
       const comparison = current.comparison;
@@ -24,8 +19,12 @@ export class SQLAdapter {
       }
 
       this.whConditions.push(comparison.column);
-      this.whConditions.push(comparison.op);
-      this.whConditions.push(comparison.value);
+      this.whConditions.push(comparison.op == "==" ? "=" : comparison.op);
+
+      // Note: Numeric comparisons should avoid quoting numbers (e.g., use age > 10 instead of age > '10')
+      // to ensure proper type handling and better performance. Will update parser to handle this.
+      this.whConditions.push(`'${comparison.value}'`);
+
       current = current.next;
     }
 

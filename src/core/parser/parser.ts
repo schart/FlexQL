@@ -47,7 +47,6 @@ export class Parser {
       if (value.type != TokenType.VALUE) {
         throw new Error(GENERAL_ERROR.UNEXCEPTED_TOKEN + " " + value.value);
       }
-      console.log(separator);
 
       this.linkedList.insert({
         logic: separator == ";" ? "AND" : "OR",
