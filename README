@@ -2,5 +2,64 @@
 
 Welcome to the FlexQL project!
 
-For English documentation, see [README-ENG.md](README-ENG.md).  
-For Turkish documentation, see [README-TR.md](README-TR.md).
+For Turkish translation, see [README-TR.md](README-TR.md).
+
+# FlexQL
+
+A simple, powerful query language for data filtering without complex SQL or ORM queries.
+
+**Query example:** `username==heja;age>18;status==active`
+
+## Features
+
+- **Human-readable syntax** with intuitive operators
+- **Secure parsing** via lexer/parser architecture
+- **Adaptable** to any database through adapter system
+- **Validated** syntax and type checking
+
+## How It Works
+
+### Lexer → Parser → Adapter
+
+1. **Lexer** tokenizes query strings into meaningful components
+2. **Parser** validates syntax and creates Abstract Syntax Tree (AST)
+3. **Adapter** converts AST to target format (SQL, MongoDB, Elasticsearch, etc.)
+
+### Syntax
+
+| Element         | Purpose            | Examples                         |
+| --------------- | ------------------ | -------------------------------- |
+| **Identifiers** | Column names       | `username`, `age`, `status`      |
+| **Operators**   | Comparisons        | `==`, `!=`, `>`, `<`, `>=`, `<=` |
+| **Logic**       | Combine conditions | `;` (AND), `,` (OR)              |
+| **Values**      | Data to match      | `"heja"`, `18`, `true`           |
+
+## Examples
+
+```
+username==heja
+age>18;status==active
+country!=us;score>=100
+username==heja,username==admin
+```
+
+## Installation & Usage
+
+```bash
+npm install flexql
+```
+
+```javascript
+import { FlexQL } from "flexql";
+
+const query = "username==heja;age>18";
+const ast = FlexQL.parse(query, { adapter: "raw-sql" });
+console.log(ast);
+```
+
+## Benefits
+
+- **Standardized** filtering across services
+- **Secure** - no raw query injection
+- **Portable** - one syntax for multiple databases
+- **Extensible** - add adapters for any data source
