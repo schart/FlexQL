@@ -1,41 +1,74 @@
 # FlexQL
 
-Karmaşık SQL veya ORM sorguları yazmadan veri filtreleme için basit ve güçlü bir sorgu dili.
+FlexQL projesine hoş geldiniz!
 
-**Sorgu örneği:** `username==heja;age>18;status==active`
+İngilizce sürüm için bkz. [README.md](./README.md).
+
+## Genel Bakış
+
+**FlexQL**, karmaşık SQL veya ORM sorgularına ihtiyaç duymadan veri filtrelemek için basit ve güçlü bir sorgu dilidir.
+
+**Örnek sorgu:**
+
+```
+username==heja;age>18 status==active
+```
+
+> ⚠️ **Not:** Boşluk (` `) ayraç olarak kullanılamaz.
+
+---
 
 ## Özellikler
 
-- **Okunabilir söz dizimi** ile sezgisel operatörler
+- **İnsan tarafından okunabilir sözdizimi** ve sezgisel operatörler
+- **Esnek ayraçlar** — `;`, `,` veya özel tanımlı ayraçlar kullanılabilir
 - **Güvenli ayrıştırma** lexer/parser mimarisi ile
-- **Uyarlanabilir** adapter sistemi ile herhangi bir veritabanına
-- **Doğrulanmış** söz dizimi ve tip kontrolü
+- **Uyarlanabilir** — adapter sistemi aracılığıyla herhangi bir veritabanına entegre edilebilir
+- **Doğrulanan** sözdizimi ve tip kontrolü
 
-## Nasıl Çalışır
+---
 
-### Lexer → Parser → Adapter
+## Nasıl Çalışır?
 
-1. **Lexer** sorgu dizelerini anlamlı bileşenlere ayırır
-2. **Parser** söz dizimini doğrular ve Soyut Söz Dizimi Ağacı (AST) oluşturur
-3. **Adapter** AST'yi hedef formata dönüştürür (SQL, MongoDB, Elasticsearch vb.)
+**Adım zinciri:** Lexer → Parser → Adapter
 
-### Söz Dizimi
+1. **Lexer**, sorgu ifadelerini anlamlı bileşenlere ayırır
+2. **Parser**, sözdizimini doğrular ve Soyut Sözdizim Ağacı (AST) oluşturur
+3. **Adapter**, AST’yi hedef formata dönüştürür (SQL, MongoDB, Elasticsearch, vb.)
 
-| Öğe                | Amaç                | Örnekler                         |
-| ------------------ | ------------------- | -------------------------------- |
-| **Tanımlayıcılar** | Sütun isimleri      | `username`, `age`, `status`      |
-| **Operatörler**    | Karşılaştırmalar    | `==`, `!=`, `>`, `<`, `>=`, `<=` |
-| **Mantık**         | Koşulları birleştir | `;` (VE), `,` (VEYA)             |
-| **Değerler**       | Eşleştirilecek veri | `"heja"`, `18`, `true`           |
+---
+
+## Sözdizimi
+
+| Eleman          | Amaç                  | Örnekler                         |
+| --------------- | --------------------- | -------------------------------- |
+| **Identifier**  | Kolon adları          | `username`, `age`, `status`      |
+| **Operatörler** | Karşılaştırmalar      | `==`, `!=`, `>`, `<`, `>=`, `<=` |
+| **Mantık**      | Koşulları birleştirme | `;`, `,` veya özel tanımlı       |
+| **Değerler**    | Eşleşecek veriler     | `"heja"`, `18`, `true`           |
+
+---
 
 ## Örnekler
+
+Aşağıdaki tüm sorgular geçerlidir:
 
 ```
 username==heja
 age>18;status==active
-country!=us;score>=100
-username==heja,username==admin
+country!=us,score>=100
+username==heja;status==active
+username==heja, status==active;score>=100
 ```
+
+Özel ayraçlarla:
+
+```
+username==heja!age>18
+username==heja! status==active,score>=100
+```
+
+---
 
 ## Kurulum ve Kullanım
 
@@ -46,14 +79,28 @@ npm install flexql
 ```javascript
 import { FlexQL } from "flexql";
 
-const query = "username==heja;age>18";
-const ast = FlexQL.parse(query, { adapter: "raw-sql" });
-console.log(ast);
+// Varsayılan ayraçları kullanma (; veya ,)
+const sorgu1 = "username==heja;age>18";
+const ast1 = FlexQL.parse(sorgu1, { adapter: "raw-sql" });
+
+// Özel ayraçlarla kullanma
+const sorgu2 = "username==heja!age>18";
+const ast2 = FlexQL.parse(sorgu2, {
+  adapter: "raw-sql",
+  separators: { and: "!", or: "," },
+});
+
+console.log(ast1, ast2);
 ```
 
-## Faydalar
+---
 
-- **Standartlaştırılmış** servisler arası filtreleme
-- **Güvenli** - ham sorgu enjeksiyonu yok
-- **Taşınabilir** - birden fazla veritabanı için tek söz dizimi
-- **Genişletilebilir** - herhangi bir veri kaynağı için adapter ekle
+## Avantajlar
+
+- **Standartlaştırılmış** filtreleme — tüm servislerde ortak dil
+- **Esnek** — ihtiyacınıza uygun ayraçları seçin (`;`, `,` veya özel)
+- **Güvenli** — ham sorgu enjeksiyonu yok
+- **Taşınabilir** — tek sözdizimi ile birden fazla veritabanı
+- **Genişletilebilir** — her veri kaynağı için adapter eklenebilir
+
+---
