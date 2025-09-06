@@ -1,4 +1,3 @@
-```markdown
 # FlexQL
 
 Welcome to the FlexQL project!
@@ -36,20 +35,19 @@ A simple, powerful query language for data filtering without complex SQL or ORM 
 | **Values**      | Data to match      | `"heja"`, `18`, `true`           |
 
 ## Examples
-```
 
+```
 username==heja
 age>18;status==active
 country!=us;score>=100
 username==heja,username==admin
-
-````
+```
 
 ## Installation & Usage
 
 ```bash
 npm install flexql
-````
+```
 
 ```javascript
 import { FlexQL } from "flexql";
@@ -65,8 +63,3 @@ console.log(ast);
 - **Secure** - no raw query injection
 - **Portable** - one syntax for multiple databases
 - **Extensible** - add adapters for any data source
-
-```
-
-
-```
