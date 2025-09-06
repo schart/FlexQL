@@ -7,7 +7,6 @@ import { LinkedListInterface } from "@/structures";
 export class LinkedList {
   insert(object: LinkedListInterface) {
     if (!this.linkedList) {
-      // initiate if it's empty!
       this.linkedList = object;
       return;
     }
@@ -25,8 +24,6 @@ export class LinkedList {
     let current = this.linkedList;
 
     while (current?.next != null) {
-      console.log(current);
-      console.log("-----------");
       current = current.next;
     }
     console.log(current?.comparison);

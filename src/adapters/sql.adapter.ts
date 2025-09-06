@@ -3,7 +3,6 @@ import { LinkedListInterface } from "@/structures";
 export class SQLAdapter {
   public main(): string {
     const whConditions = this.generateRawSQL();
-    console.log("Generated wh conditions => ", whConditions);
     return whConditions;
   }
 
