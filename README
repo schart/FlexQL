@@ -2,7 +2,7 @@
 
 Welcome to the FlexQL project!
 
-For Turkish translation, see [README-TR.md](README-TR.md).
+For Turkish translation, see [README-TR.md](./README-TR.md).
 
 # FlexQL
 
