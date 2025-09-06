@@ -1,5 +1,10 @@
 import { LinkedList } from "@/ast";
-import { LinkedListInterface, Token, TokenType } from "@/structures";
+import {
+  LinkedListInterface,
+  SeparatorRecord,
+  Token,
+  TokenType,
+} from "@/structures";
 import { GENERAL_ERROR } from "@/structures/constants/error.constant";
 
 export class Parser {
@@ -23,7 +28,7 @@ export class Parser {
 
   private parser() {
     this.parseCondition();
-    let separator: string | number = "";
+    let separator: any = "";
 
     while (this.pos < this.tokens.length) {
       if (this.peek().type == TokenType.EOF) return;
@@ -49,7 +54,7 @@ export class Parser {
       }
 
       this.linkedList.insert({
-        logic: separator == ";" ? "AND" : "OR",
+        logic: separator == SeparatorRecord?.separators?.and ? "AND" : "OR",
         comparison: {
           column: column.value,
           op: op.value,
