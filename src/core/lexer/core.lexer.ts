@@ -1,8 +1,8 @@
-import { Operators, Separators, Token, TokenType } from "@/structures";
-import { LEXER_ERROR } from "@/structures/constants/error.constant";
+import { Operators, Separators, tokenInterface, TokenType } from "@/structures";
+import { LEXER_ERROR } from "@/structures/constants/constant.error";
 
 export class Lexer {
-  public main(): Token[] {
+  public main(): tokenInterface[] {
     this.core();
 
     return this.tokens;
@@ -110,8 +110,8 @@ export class Lexer {
     }
   }
 
-  private generateToken(type: string, value: string | number): Token {
-    const token: Token = {
+  private generateToken(type: string, value: string | number): tokenInterface {
+    const token: tokenInterface = {
       type: type,
       value: value,
     };
@@ -121,7 +121,7 @@ export class Lexer {
   private readonly data: string;
   private pos: number;
   private currentChar: string;
-  private tokens: Token[];
+  private tokens: tokenInterface[];
 
   constructor(data: string) {
     this.pos = 0;

@@ -1,24 +1,29 @@
 import {
   Separators,
-  SeparatorRecord,
-  RunQuerySettings,
+  separatorRecord,
   DefaultSeparators,
+  runQuerySettingsInterface,
 } from "@/structures";
 
 export class Settings {
   load() {
-    this.setSeparators();
+    this.setSeparators(); // Set separators as custom (optional) or default
   }
 
   setSeparators(): void {
-    SeparatorRecord.separators = this.settings.separators || DefaultSeparators;
+    separatorRecord.separators = {
+      ...DefaultSeparators,
+      ...this.settings.separators,
+    };
 
-    Separators.push(Object.values(SeparatorRecord.separators)[0]); // ["?", "?"] indef of : 0
-    Separators.push(Object.values(SeparatorRecord.separators)[1]); // ["?", "?"] indef of : 1
+    // indef of separator : 0
+    // indef of separator: 1
+    Separators.push(Object.values(separatorRecord.separators)[0]);
+    Separators.push(Object.values(separatorRecord.separators)[1]);
   }
 
-  private readonly settings: RunQuerySettings;
-  constructor(settings?: RunQuerySettings) {
+  private readonly settings: runQuerySettingsInterface;
+  constructor(settings?: runQuerySettingsInterface) {
     this.settings = settings || {};
   }
 }

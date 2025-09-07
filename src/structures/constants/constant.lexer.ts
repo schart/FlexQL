@@ -1,11 +1,15 @@
-import { RunQuerySettings } from "../interfaces/adapter.interface";
+import { runQuerySettingsInterface } from "../interfaces/interface.adapter";
+import { separatorsType } from "../types/type.adapter";
 
 export const Operators = ["<", ">", "=", "!"];
-export const DefaultSeparators = { and: ";", or: "," };
+export const DefaultSeparators: Record<"and" | "or", separatorsType> = {
+  and: ";",
+  or: ",",
+};
 
-let SeparatorRecord: Pick<RunQuerySettings, "separators"> = {};
-let SeparatorValues: any = [];
-export { SeparatorValues as Separators, SeparatorRecord };
+let separatorRecord: Pick<runQuerySettingsInterface, "separators"> = {};
+let separatorValues: any = [];
+export { separatorValues as Separators, separatorRecord };
 
 // export let {
 //   separators: separatorsSettings,
