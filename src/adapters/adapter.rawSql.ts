@@ -1,13 +1,10 @@
-import { LinkedListInterface } from "@/structures";
+import { flexQLResultInterface, linkedListInterface } from "@/structures";
 
 export class SQLAdapter {
-  public main(): string {
-    const whConditions = this.generateRawSQL();
-    return whConditions;
-  }
-
-  generateRawSQL() {
+  execute(): flexQLResultInterface {
+    let values: any = [];
     let current: any = this.ast;
+
     this.whConditions.push("WHERE");
 
     while (current != null) {
@@ -22,17 +19,21 @@ export class SQLAdapter {
 
       // Note: Numeric comparisons should avoid quoting numbers (e.g., use age > 10 instead of age > '10')
       // to ensure proper type handling and better performance. Will update parser to handle this.
-      this.whConditions.push(`'${comparison.value}'`);
+      values.push(`${comparison.value}`);
+      this.whConditions.push(`?`);
 
       current = current.next;
     }
 
-    return this.whConditions.join(" ");
+    return {
+      type: "raw-sql",
+      payload: { conditions: this.whConditions.join(" "), values: values },
+    };
   }
 
-  private readonly ast: LinkedListInterface;
+  private readonly ast: linkedListInterface;
   private whConditions: string[] = [];
-  constructor(ast: LinkedListInterface) {
+  constructor(ast: linkedListInterface) {
     this.ast = ast;
   }
 }

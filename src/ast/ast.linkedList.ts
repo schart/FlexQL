@@ -2,10 +2,10 @@
   I used linked list instead of Binary Tree cause the i don't necessary vertical movement currently
 */
 
-import { LinkedListInterface } from "@/structures";
+import { linkedListInterface } from "@/structures";
 
 export class LinkedList {
-  insert(object: LinkedListInterface) {
+  insert(object: linkedListInterface) {
     if (!this.linkedList) {
       this.linkedList = object;
       return;
@@ -29,11 +29,11 @@ export class LinkedList {
     console.log(current?.comparison);
   }
 
-  peek(): LinkedListInterface | null {
+  peek(): linkedListInterface | null {
     return this.linkedList || null;
   }
 
-  private linkedList: LinkedListInterface | null;
+  private linkedList: linkedListInterface | null;
 
   constructor() {
     this.linkedList = null;

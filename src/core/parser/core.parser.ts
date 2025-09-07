@@ -1,14 +1,14 @@
 import { LinkedList } from "@/ast";
 import {
-  LinkedListInterface,
-  SeparatorRecord,
-  Token,
   TokenType,
+  tokenInterface,
+  separatorRecord,
+  linkedListInterface,
 } from "@/structures";
-import { GENERAL_ERROR } from "@/structures/constants/error.constant";
+import { GENERAL_ERROR } from "@/structures/constants/constant.error";
 
 export class Parser {
-  public main(): LinkedListInterface | null {
+  public main(): linkedListInterface | null {
     this.parser();
     return this.linkedList.peek();
   }
@@ -37,9 +37,9 @@ export class Parser {
         this.consume();
       }
 
-      let column: Token | undefined = this.consume();
-      let op: Token | undefined = this.consume();
-      let value: Token | undefined = this.consume();
+      let column: tokenInterface | undefined = this.consume();
+      let op: tokenInterface | undefined = this.consume();
+      let value: tokenInterface | undefined = this.consume();
 
       if (column.type != TokenType.COLUMN) {
         throw new Error(GENERAL_ERROR.UNEXCEPTED_TOKEN + " " + column.value);
@@ -54,7 +54,7 @@ export class Parser {
       }
 
       this.linkedList.insert({
-        logic: separator == SeparatorRecord?.separators?.and ? "AND" : "OR",
+        logic: separator == separatorRecord?.separators?.and ? "AND" : "OR",
         comparison: {
           column: column.value,
           op: op.value,
@@ -68,9 +68,9 @@ export class Parser {
   }
 
   private parseCondition() {
-    let column: Token | undefined = this.consume();
-    let op: Token | undefined = this.consume();
-    let value: Token | undefined = this.consume();
+    let column: tokenInterface | undefined = this.consume();
+    let op: tokenInterface | undefined = this.consume();
+    let value: tokenInterface | undefined = this.consume();
 
     if (column.type != TokenType.COLUMN) {
       throw new Error(GENERAL_ERROR.UNEXCEPTED_TOKEN + " " + column.value);
@@ -92,10 +92,10 @@ export class Parser {
   }
 
   private pos: number;
-  private readonly tokens: Token[];
+  private readonly tokens: tokenInterface[];
   public linkedList = new LinkedList();
 
-  constructor(tokens: Token[]) {
+  constructor(tokens: tokenInterface[]) {
     this.pos = 0;
     this.tokens = tokens;
   }

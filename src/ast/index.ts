@@ -1,1 +1,1 @@
-export * from "@/ast/linkedList";
+export * from "@/ast/ast.linkedList";

@@ -1,40 +1,59 @@
 import { Lexer, Parser } from "@/core";
 import { SQLAdapter } from "@/adapters";
-import { LinkedListInterface, RunQuerySettings, Token } from "@/structures";
 import { Settings } from "@/settings/settings";
+import {
+  tokenInterface,
+  linkedListInterface,
+  flexQLResultInterface,
+  runQuerySettingsInterface,
+} from "@/structures";
 
 export class FlexQL {
-  generate(input: string, settings?: RunQuerySettings | {}): string | null {
-    const parsedAst = this.core(input, settings);
-    if (!parsedAst) {
+  generate(
+    input: string,
+    settings?: runQuerySettingsInterface | {}
+  ): flexQLResultInterface | null {
+    if (!input) {
       return null;
     }
+    // Load settings
+    this.preSettings(settings);
 
-    return this.executeAdapter(parsedAst, settings);
+    // Lexer/tokenizer
+    const tokens: tokenInterface[] = this.tokenizer(input);
+
+    // Parser
+    const parsed: linkedListInterface | null = this.parse(tokens);
+
+    return this.executeAdapter(parsed, settings);
   }
 
   private executeAdapter(
-    ast: LinkedListInterface,
-    { adapter }: Pick<RunQuerySettings, "adapter"> = {}
-  ): string {
+    ast: linkedListInterface | null,
+    { adapter }: Pick<runQuerySettingsInterface, "adapter"> = {}
+  ): flexQLResultInterface | null {
+    if (!ast) {
+      return null;
+    }
+
     const adapters: Record<string, any> = {
-      "raw-sql": new SQLAdapter(ast).main(),
+      "raw-sql": new SQLAdapter(ast).execute(),
     };
 
     return adapters[adapter || "raw-sql"];
   }
 
-  private core(
-    input: string,
-    settings?: RunQuerySettings | {}
-  ): LinkedListInterface | null {
-    // Load all settings
-    const settingsClass = new Settings(settings);
-    settingsClass.load();
+  private preSettings(settings?: runQuerySettingsInterface | {}) {
+    const setting = new Settings(settings);
+    setting.load();
+  }
 
-    const tokens: Token[] = new Lexer(input).main();
-    const parser = new Parser(tokens);
+  private tokenizer(input: string): tokenInterface[] {
+    return new Lexer(input).main();
+  }
 
+  private parse(tokens: tokenInterface[]): linkedListInterface | null {
+    const parser: Parser = new Parser(tokens);
     return parser.main() || null;
   }
 }
