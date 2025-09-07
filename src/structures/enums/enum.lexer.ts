@@ -1,9 +1,0 @@
-export enum TokenType {
-  COLUMN = "COLUMN",
-  OPERATOR = "OPERATOR",
-  STRING = "STRING",
-  NUMBER = "NUMBER",
-  SEPARATOR = "SEPARATOR",
-  EOF = "EOF",
-  VALUE = "VALUE",
-}
