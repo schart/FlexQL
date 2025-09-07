@@ -23,6 +23,7 @@ username==heja;age>18 status==active
 - **Human-readable syntax** with intuitive operators
 - **Flexible separators** — `;`, `,`, or custom-defined delimiters can be used
 - **Secure parsing** via lexer/parser architecture
+- **Prevented SQL injections** — uses parameterized queries instead of raw string concatenation
 - **Adaptable** — can be integrated into any database through the adapter system
 - **Validated** syntax and type checking
 
@@ -34,7 +35,25 @@ username==heja;age>18 status==active
 
 1. **Lexer** splits query strings into meaningful components
 2. **Parser** validates the syntax and builds an Abstract Syntax Tree (AST)
-3. **Adapter** converts the AST into the target format (SQL, MongoDB, Elasticsearch, etc.)
+3. **Adapter** converts the AST into the target format (SQL, MongoDB, Elasticsearch, etc.) safely using **parameterized queries**
+
+---
+
+## Standardized Output Example
+
+For a raw SQL query, FlexQL produces a standardized, injection-safe payload:
+
+```javascript
+{
+  type: 'raw-sql',
+  payload: {
+    conditions: 'WHERE CategoryName = ? AND age > ?',
+    values: [ 'Beverages', '10' ]
+  }
+}
+```
+
+> ⚠️ User inputs are never directly concatenated into SQL. Values are safely parameterized to prevent SQL injection.
 
 ---
 
@@ -99,7 +118,7 @@ console.log(ast1, ast2);
 
 - **Standardized** filtering — a common language across services
 - **Flexible** — choose separators that fit your needs (`;`, `,`, or custom)
-- **Secure** — no raw query injection
+- **Secure** — prevents SQL injection via parameterized queries
 - **Portable** — one syntax for multiple databases
 - **Extensible** — add adapters for any data source
 
