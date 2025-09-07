@@ -33,7 +33,7 @@ username==heja;age>18 status==active
 
 1. **Lexer**, sorgu dizelerini anlamlı bileşenlere ayırır
 2. **Parser**, sözdizimini doğrular ve Soyut Sözdizimi Ağacı (AST) oluşturur
-3. **Adapter**, AST'yi güvenli bir şekilde hedef biçime (SQL, MongoDB, Elasticsearch vb.) dönüştürür **parametreli sorgular**
+3. **Adapter**, AST'yi güvenli bir şekilde hedef biçime (SQL, MongoDB, Elasticsearch vb) dönüştürür **parametreli sorgular**
 
 ---
 
