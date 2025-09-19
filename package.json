@@ -21,6 +21,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "sequelize": "^6.37.7"
   }
 }

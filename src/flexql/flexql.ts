@@ -7,15 +7,18 @@ import {
   flexQLResultInterface,
   runQuerySettingsInterface,
 } from "@/structures";
+import { adapterType } from "@/structures/types/type.adapter";
+import { SequelizeAdapter } from "@/adapters/adapter.sequelize";
 
 export class FlexQL {
-  generate(
+  public generate(
     input: string,
     settings?: runQuerySettingsInterface | {}
   ): flexQLResultInterface | null {
     if (!input) {
       return null;
     }
+
     // Load settings
     this.preSettings(settings);
 
@@ -36,8 +39,9 @@ export class FlexQL {
       return null;
     }
 
-    const adapters: Record<string, any> = {
+    const adapters: Record<adapterType, any> = {
       "raw-sql": new SQLAdapter(ast).execute(),
+      sequelize: new SequelizeAdapter(ast).execute(),
     };
 
     return adapters[adapter || "raw-sql"];
