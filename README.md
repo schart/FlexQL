@@ -34,7 +34,7 @@ username==heja;age>18 status==active
 **Pipeline:** Lexer → Parser → Adapter
 
 1. **Lexer** splits query strings into meaningful components
-2. **Parser** validates the syntax and builds an Abstract Syntax Tree (AST)
+2. **Parser** validates the syntax and builds an N-arry Tree (ANT)
 3. **Adapter** converts the AST into the target format (SQL, MongoDB, Elasticsearch, etc) safely using **parameterized queries**
 
 ---

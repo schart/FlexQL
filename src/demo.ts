@@ -3,12 +3,12 @@ import { flexQLResultInterface, runQuerySettingsInterface } from "./structures";
 
 const flexQl = new FlexQL();
 const runQuerySettings: runQuerySettingsInterface = {
-  separators: { and: "&", or: "|" },
-  adapter: "sequelize",
+  separators: { and: ";", or: "," },
+  adapter: "raw-sql",
 };
 
 const generatedCode: flexQLResultInterface | null = flexQl.generate(
-  "CategoryName==Beverages&age>=10",
+  "name == joe ; age >= 10 , tax > 10",
   runQuerySettings
 );
 

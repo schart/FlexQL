@@ -2,8 +2,8 @@ import { Lexer, Parser } from "@/core";
 import { SQLAdapter } from "@/adapters";
 import { Settings } from "@/settings/settings";
 import {
+  treeInterface,
   tokenInterface,
-  linkedListInterface,
   flexQLResultInterface,
   runQuerySettingsInterface,
 } from "@/structures";
@@ -24,21 +24,23 @@ export class FlexQL {
 
     // Lexer/tokenizer
     const tokens: tokenInterface[] = this.tokenizer(input);
-
+    // console.log("Tokens: ", tokens)
+    
     // Parser
-    const parsed: linkedListInterface | null = this.parse(tokens);
-
+    const parsed: treeInterface | null = this.parse(tokens);
+    console.log("parsed: ", parsed)
     return this.executeAdapter(parsed, settings);
   }
 
   private executeAdapter(
-    ast: linkedListInterface | null,
+    ast: treeInterface | null,
     { adapter }: Pick<runQuerySettingsInterface, "adapter"> = {}
   ): flexQLResultInterface | null {
     if (!ast) {
       return null;
     }
 
+ 
     const adapters: Record<adapterType, any> = {
       "raw-sql": new SQLAdapter(ast).execute(),
       sequelize: new SequelizeAdapter(ast).execute(),
@@ -56,7 +58,7 @@ export class FlexQL {
     return new Lexer(input).main();
   }
 
-  private parse(tokens: tokenInterface[]): linkedListInterface | null {
+  private parse(tokens: tokenInterface[]): treeInterface | null {
     const parser: Parser = new Parser(tokens);
     return parser.main() || null;
   }
