@@ -1,4 +1,4 @@
 export interface treeInterface {
   logic: string; // AND = ? - OR = ?
-  conditions: Pick<treeInterface, 'conditions'>[];   
+  conditions: any//{column: string, op: string, value: string}[] | Pick<treeInterface, 'conditions'>[];   
  }

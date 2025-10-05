@@ -25,10 +25,10 @@ export class FlexQL {
     // Lexer/tokenizer
     const tokens: tokenInterface[] = this.tokenizer(input);
     // console.log("Tokens: ", tokens)
-    
+
     // Parser
     const parsed: treeInterface | null = this.parse(tokens);
-    console.log("parsed: ", parsed)
+    console.log("parsed: ", parsed);
     return this.executeAdapter(parsed, settings);
   }
 
@@ -40,7 +40,6 @@ export class FlexQL {
       return null;
     }
 
- 
     const adapters: Record<adapterType, any> = {
       "raw-sql": new SQLAdapter(ast).execute(),
       sequelize: new SequelizeAdapter(ast).execute(),
