@@ -53,8 +53,6 @@ export class Parser {
         }
 
         orConditions = [];
-        // console.log("and conditions: ", andConditions);
-
         continue;
       }
 
