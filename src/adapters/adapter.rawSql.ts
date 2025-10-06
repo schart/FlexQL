@@ -1,28 +1,57 @@
-import { flexQLResultInterface, linkedListInterface } from "@/structures";
+import { flexQLResultInterface, treeInterface } from "@/structures";
 
 export class SQLAdapter {
   execute(): flexQLResultInterface {
     let values: any = [];
-    let current: any = this.ast;
+    const ast: treeInterface = this.ast;
+
+    const rootLogic = ast.logic;
+    const conditions = ast.conditions;
 
     this.whConditions.push("WHERE");
 
-    while (current != null) {
-      const comparison = current.comparison;
+    for (let i = 0; i < conditions.length; i++) {
+      // Inner conditions
+      if (conditions[i].conditions) {
+        this.whConditions.push("(");
+        for (let j = 0; j < conditions[i].conditions.length; j++) {
+          let innerCondition = conditions[i].conditions;
 
-      if (current.logic) {
-        this.whConditions.push(current.logic);
+          this.whConditions.push(
+            ...[
+              innerCondition[j]["column"],
+              conditions[j]["op"] == "==" ? "=" : conditions[j]["op"],
+              "?",
+            ]
+          );
+          values.push(innerCondition[j]["value"]);
+
+          if (j >= 0 && j < innerCondition.length - 1) {
+            this.whConditions.push(conditions[i].logic);
+          }
+        }
+        this.whConditions.push(")");
+
+        // Don't create A logic mark at end of the conditions
+        if (i !== conditions.length - 1) {
+          this.whConditions.push(rootLogic);
+        }
+      } else {
+        // Straight conditions
+        this.whConditions.push(
+          ...[
+            conditions[i]["column"],
+            conditions[i]["op"] == "==" ? "=" : conditions[i]["op"],
+            "?",
+          ]
+        );
+        values.push(conditions[i]["value"]);
+
+        // Don't create A logic mark at end of the conditions
+        if (i !== conditions.length - 1) {
+          this.whConditions.push(rootLogic);
+        }
       }
-
-      this.whConditions.push(comparison.column);
-      this.whConditions.push(comparison.op == "==" ? "=" : comparison.op);
-
-      // Note: Numeric comparisons should avoid quoting numbers (e.g., use age > 10 instead of age > '10')
-      // to ensure proper type handling and better performance. Will update parser to handle this.
-      values.push(`${comparison.value}`);
-      this.whConditions.push(`?`);
-
-      current = current.next;
     }
 
     return {
@@ -31,9 +60,9 @@ export class SQLAdapter {
     };
   }
 
-  private readonly ast: linkedListInterface;
+  private readonly ast: treeInterface;
   private whConditions: string[] = [];
-  constructor(ast: linkedListInterface) {
+  constructor(ast: treeInterface) {
     this.ast = ast;
   }
 }
