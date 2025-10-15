@@ -1,5 +1,5 @@
-import { treeInterface } from "@/ast";
 import { flexQLResultInterface } from "@/structures";
+import { treeInterface } from "@/structures/interfaces/interface.tree";
 
 export class SQLAdapter {
   execute(): flexQLResultInterface {
@@ -58,7 +58,11 @@ export class SQLAdapter {
 
     return {
       type: "raw-sql",
-      payload: { conditions: this.whConditions.join(" "), values: values },
+      payload: {
+        conditions:
+          this.whConditions.length === 1 ? "" : this.whConditions.join(" "),
+        values: values,
+      },
     };
   }
 

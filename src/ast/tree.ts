@@ -1,9 +1,8 @@
-import { InterfaceConditions, InterfaceLogicalConditions } from "@/core";
-
-export interface treeInterface {
-  logic?: "AND" | "OR";
-  conditions: (InterfaceLogicalConditions | InterfaceConditions)[];
-}
+import {
+  InterfaceLogicalConditions,
+  InterfaceConditions,
+} from "@/structures/interfaces/interface.parser";
+import { treeInterface } from "@/structures/interfaces/interface.tree";
 
 export class Tree {
   insert(object: treeInterface) {
@@ -11,7 +10,7 @@ export class Tree {
       this.tree = object;
       return;
     }
- 
+
     this.tree.conditions.push(object as InterfaceLogicalConditions);
   }
 

@@ -1,18 +1,9 @@
 import { Tree } from "@/ast";
 import { TokenType, tokenInterface, separatorRecord } from "@/structures";
-
-export type TypeCondition = "AND" | "OR";
-
-export interface InterfaceConditions {
-  column: string;
-  op: string;
-  value: string | number;
-}
-
-export interface InterfaceLogicalConditions {
-  logic?: TypeCondition;
-  conditions: (InterfaceConditions | InterfaceLogicalConditions)[];
-}
+import {
+  InterfaceConditions,
+  InterfaceLogicalConditions,
+} from "@/structures/interfaces/interface.parser";
 
 export class Parser {
   public main(): InterfaceLogicalConditions | null {
@@ -42,6 +33,18 @@ export class Parser {
       let column: tokenInterface = this.consume();
       let op: tokenInterface = this.consume();
       let value: tokenInterface = this.consume();
+
+      if (column.type != TokenType.COLUMN) {
+        throw new Error("Unexpected Token " + value.type);
+      }
+
+      if (op.type !== TokenType.OPERATOR) {
+        throw new Error("Unexpected Token " + value.type);
+      }
+
+      if (value.type !== TokenType.VALUE) {
+        throw new Error("Unexpected Token " + value.type);
+      }
 
       orConditions.push({
         column: column.value,

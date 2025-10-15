@@ -11,5 +11,5 @@ export interface runQuerySettingsInterface extends separatorSettingsInterface {
 // Adapters' return structures
 export interface flexQLResultInterface<T = any> {
   type: adapterType;
-  payload: T;
+  payload: T | null;
 }
