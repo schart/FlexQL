@@ -1,9 +1,10 @@
-import { flexQLResultInterface, treeInterface } from "@/structures";
+import { treeInterface } from "@/ast";
+import { flexQLResultInterface } from "@/structures";
 
 export class SQLAdapter {
   execute(): flexQLResultInterface {
     let values: any = [];
-    const ast: treeInterface = this.ast;
+    const ast: any = this.ast;
 
     const rootLogic = ast.logic;
     const conditions = ast.conditions;
@@ -14,13 +15,14 @@ export class SQLAdapter {
       // Inner conditions
       if (conditions[i].conditions) {
         this.whConditions.push("(");
+
         for (let j = 0; j < conditions[i].conditions.length; j++) {
           let innerCondition = conditions[i].conditions;
 
           this.whConditions.push(
             ...[
               innerCondition[j]["column"],
-              conditions[j]["op"] == "==" ? "=" : conditions[j]["op"],
+              innerCondition[j]["op"] == "==" ? "=" : innerCondition[j]["op"],
               "?",
             ]
           );

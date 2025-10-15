@@ -1,5 +1,9 @@
-import {  treeInterface } from "@/structures";
+import { InterfaceConditions, InterfaceLogicalConditions } from "@/core";
 
+export interface treeInterface {
+  logic?: "AND" | "OR";
+  conditions: (InterfaceLogicalConditions | InterfaceConditions)[];
+}
 
 export class Tree {
   insert(object: treeInterface) {
@@ -7,8 +11,8 @@ export class Tree {
       this.tree = object;
       return;
     }
-
-    this.tree.conditions.push(object);
+ 
+    this.tree.conditions.push(object as InterfaceLogicalConditions);
   }
 
   traversal() {
