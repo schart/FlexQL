@@ -1,22 +1,30 @@
 import { Tree } from "@/ast";
-import {
-  TokenType,
-  tokenInterface,
-  separatorRecord,
-  treeInterface,
-} from "@/structures";
+import { TokenType, tokenInterface, separatorRecord } from "@/structures";
+
+export type TypeCondition = "AND" | "OR";
+
+export interface InterfaceConditions {
+  column: string;
+  op: string;
+  value: string | number;
+}
+
+export interface InterfaceLogicalConditions {
+  logic?: TypeCondition;
+  conditions: (InterfaceConditions | InterfaceLogicalConditions)[];
+}
 
 export class Parser {
-  public main(): treeInterface | null {
+  public main(): InterfaceLogicalConditions | null {
     this.parser();
     return this.tree.peek();
   }
 
-  private peek(): (typeof this.tokens)[0] {
+  private peek(): tokenInterface {
     return this.tokens[this.pos];
   }
 
-  private consume() {
+  private consume(): tokenInterface {
     let current: number = 0;
     if (this.pos < this.tokens.length) {
       current = this.pos;
@@ -26,13 +34,14 @@ export class Parser {
   }
 
   private parser() {
-    let andConditions: any[] = [];
-    let orConditions: any[] = [];
+    let andConditions: (InterfaceLogicalConditions | InterfaceConditions)[] =
+      [];
+    let orConditions: (InterfaceLogicalConditions | InterfaceConditions)[] = [];
 
     while (this.peek() && this.peek().type !== TokenType.EOF) {
-      let column: tokenInterface | undefined = this.consume();
-      let op: tokenInterface | undefined = this.consume();
-      let value: tokenInterface | undefined = this.consume();
+      let column: tokenInterface = this.consume();
+      let op: tokenInterface = this.consume();
+      let value: tokenInterface = this.consume();
 
       orConditions.push({
         column: column.value,
@@ -40,9 +49,7 @@ export class Parser {
         value: value.value,
       });
 
-      let next;
-      next = this.peek()?.value;
-
+      let next: tokenInterface["value"] = this.peek()?.value;
       if (next == separatorRecord.separators?.and) {
         this.consume();
 
@@ -57,11 +64,6 @@ export class Parser {
       }
 
       if (next === separatorRecord.separators?.or) {
-        // if (andConditions.length === 1) {
-        //   orConditions.push(andConditions[0]);
-        // } else {
-        //   orConditions.push({ logic: "AND", conditions: [...andConditions] });
-        // }
         this.consume();
         continue;
       }
@@ -77,12 +79,10 @@ export class Parser {
 
     // Build tree
     if (andConditions.length === 1) {
-      this.tree.insert(andConditions[0]);
+      this.tree.insert(andConditions[0] as any);
     } else {
       this.tree.insert({ logic: "AND", conditions: andConditions });
     }
-
-    // this.tree.traversal();
   }
 
   private pos: number;

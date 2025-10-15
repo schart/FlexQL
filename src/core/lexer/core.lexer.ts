@@ -110,7 +110,7 @@ export class Lexer {
     }
   }
 
-  private generateToken(type: string, value: string | number): tokenInterface {
+  private generateToken(type: string, value: string): tokenInterface {
     const token: tokenInterface = {
       type: type,
       value: value,

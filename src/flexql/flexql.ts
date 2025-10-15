@@ -2,18 +2,18 @@ import { Lexer, Parser } from "@/core";
 import { SQLAdapter } from "@/adapters";
 import { Settings } from "@/settings/settings";
 import {
-  treeInterface,
   tokenInterface,
   flexQLResultInterface,
   runQuerySettingsInterface,
 } from "@/structures";
 import { adapterType } from "@/structures/types/type.adapter";
 import { SequelizeAdapter } from "@/adapters/adapter.sequelize";
+import { treeInterface } from "@/ast";
 
 export class FlexQL {
   public generate(
     input: string,
-    settings?: runQuerySettingsInterface | {}
+    settings?: runQuerySettingsInterface
   ): flexQLResultInterface | null {
     if (!input) {
       return null;
@@ -27,6 +27,7 @@ export class FlexQL {
 
     // Parser
     const parsed: treeInterface | null = this.parse(tokens);
+    console.log(parsed);
     return this.executeAdapter(parsed, settings);
   }
 
