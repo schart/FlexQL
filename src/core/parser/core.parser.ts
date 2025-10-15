@@ -1,18 +1,9 @@
 import { Tree } from "@/ast";
 import { TokenType, tokenInterface, separatorRecord } from "@/structures";
-
-export type TypeCondition = "AND" | "OR";
-
-export interface InterfaceConditions {
-  column: string;
-  op: string;
-  value: string | number;
-}
-
-export interface InterfaceLogicalConditions {
-  logic?: TypeCondition;
-  conditions: (InterfaceConditions | InterfaceLogicalConditions)[];
-}
+import {
+  InterfaceConditions,
+  InterfaceLogicalConditions,
+} from "@/structures/interfaces/interface.parser";
 
 export class Parser {
   public main(): InterfaceLogicalConditions | null {

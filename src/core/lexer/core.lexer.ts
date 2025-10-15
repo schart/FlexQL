@@ -4,7 +4,6 @@ import { LEXER_ERROR } from "@/structures/constants/constant.error";
 export class Lexer {
   public main(): tokenInterface[] {
     this.core();
-
     return this.tokens;
   }
 

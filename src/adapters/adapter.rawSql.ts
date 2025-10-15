@@ -58,7 +58,11 @@ export class SQLAdapter {
 
     return {
       type: "raw-sql",
-      payload: { conditions: this.whConditions.join(" "), values: values },
+      payload: {
+        conditions:
+          this.whConditions.length === 1 ? "" : this.whConditions.join(" "),
+        values: values,
+      },
     };
   }
 

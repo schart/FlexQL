@@ -12,4 +12,4 @@ const generatedCode: flexQLResultInterface | null = flexQl.generate(
   runQuerySettings
 );
 
-console.log("Output of flexQl", generatedCode);
+console.log(generatedCode);
