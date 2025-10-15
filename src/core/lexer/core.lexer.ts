@@ -1,5 +1,5 @@
-import { Operators, Separators, tokenInterface, TokenType } from "@/structures";
 import { LEXER_ERROR } from "@/structures/constants/constant.error";
+import { Operators, Separators, tokenInterface, TokenType } from "@/structures";
 
 export class Lexer {
   public main(): tokenInterface[] {
@@ -103,13 +103,13 @@ export class Lexer {
     value = "";
   }
 
-  private processWhiteSpace() {
+  private processWhiteSpace(): void {
     if (this.currentChar == " ") {
       this.forwardNextToken();
     }
   }
 
-  private generateToken(type: string, value: string): tokenInterface {
+  private generateToken(type: TokenType, value: string): tokenInterface {
     const token: tokenInterface = {
       type: type,
       value: value,
@@ -117,8 +117,8 @@ export class Lexer {
     return token;
   }
 
-  private readonly data: string;
   private pos: number;
+  private readonly data: string;
   private currentChar: string;
   private tokens: tokenInterface[];
 

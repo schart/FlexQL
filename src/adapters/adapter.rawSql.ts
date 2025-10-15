@@ -1,5 +1,5 @@
-import { treeInterface } from "@/ast";
 import { flexQLResultInterface } from "@/structures";
+import { treeInterface } from "@/structures/interfaces/interface.tree";
 
 export class SQLAdapter {
   execute(): flexQLResultInterface {

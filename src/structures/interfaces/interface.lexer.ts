@@ -1,4 +1,6 @@
+import { TokenType } from "../enums/enum.lexer";
+
 export interface tokenInterface {
-  type: string;
+  type: TokenType;
   value: string;
 }

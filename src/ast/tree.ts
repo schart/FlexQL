@@ -2,11 +2,7 @@ import {
   InterfaceLogicalConditions,
   InterfaceConditions,
 } from "@/structures/interfaces/interface.parser";
-
-export interface treeInterface {
-  logic?: "AND" | "OR";
-  conditions: (InterfaceLogicalConditions | InterfaceConditions)[];
-}
+import { treeInterface } from "@/structures/interfaces/interface.tree";
 
 export class Tree {
   insert(object: treeInterface) {

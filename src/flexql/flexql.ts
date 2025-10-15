@@ -1,5 +1,4 @@
 import { Lexer, Parser } from "@/core";
-import { treeInterface } from "@/ast";
 import { SQLAdapter } from "@/adapters";
 import { Settings } from "@/settings/settings";
 import { adapterType } from "@/structures/types/type.adapter";
@@ -8,6 +7,7 @@ import {
   flexQLResultInterface,
   runQuerySettingsInterface,
 } from "@/structures";
+import { treeInterface } from "@/structures/interfaces/interface.tree";
 
 export class FlexQL {
   public generate(
