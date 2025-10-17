@@ -99,7 +99,7 @@ export class Lexer {
 
     if (value.trim().length <= 0) throw new Error(LEXER_ERROR.VALUE_LEN);
 
-    this.tokens.push(this.generateToken(TokenType.VALUE, value));
+    this.tokens.push(this.generateToken(TokenType.VALUE, value.trim()));
     value = "";
   }
 
