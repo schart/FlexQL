@@ -108,7 +108,7 @@ export class Lexer {
     const parseInt: number = Number.parseInt(value);
     if (!Number.isInteger(parseInt)) {
       possibleDataType = "STRING";
-      value = value.replace(/^["']|["']$/g, ""); // Normalize strings
+      value = value.replace(/^["']|["']$/g, ""); // Normalize  strings
     } else {
       value = parseInt;
     }
