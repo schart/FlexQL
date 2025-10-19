@@ -1,7 +1,4 @@
-import {
-  InterfaceLogicalConditions,
-  InterfaceConditions,
-} from "@/structures/interfaces/interface.parser";
+import { InterfaceLogicalConditions } from "@/structures/interfaces/interface.parser";
 import { treeInterface } from "@/structures/interfaces/interface.tree";
 
 export class Tree {
