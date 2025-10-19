@@ -42,7 +42,7 @@ export class Parser {
         throw new Error("Unexpected Token " + value.type);
       }
 
-      if (value.type !== TokenType.STRING || TokenType.NUMBER) {
+      if (value.type !== TokenType.STRING && value.type !== TokenType.NUMBER) {
         throw new Error("Unexpected Token " + value.type);
       }
 
