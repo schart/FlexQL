@@ -1,6 +1,6 @@
 import { TokenType } from "../enums/enum.lexer";
 
-export interface tokenInterface {
+export interface tokenInterface<T = number | string> {
   type: TokenType;
-  value: string;
+  value: T extends number ? any : string;
 }

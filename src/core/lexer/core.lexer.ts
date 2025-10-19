@@ -2,9 +2,21 @@ import { LEXER_ERROR } from "@/structures/constants/constant.error";
 import { Operators, Separators, tokenInterface, TokenType } from "@/structures";
 
 export class Lexer {
+  private pos: number = 0;
+  private currentChar: string;
+  private readonly data: string;
+  private tokens: tokenInterface[] = [];
+
+  constructor(data: string) {
+    this.data = data;
+    this.currentChar = this.data[this.pos];
+  }
+
   public main(): tokenInterface[] {
     if (this.data.length <= 0) {
-      this.tokens.push(this.generateToken(TokenType.EOF, "EOF"));
+      this.tokens.push(
+        this.generateToken({ type: TokenType.EOF, value: "EOF" })
+      );
       return this.tokens;
     }
 
@@ -25,15 +37,17 @@ export class Lexer {
         }
 
         this.tokens.push(
-          this.generateToken(TokenType.SEPARATOR, this.currentChar)
+          this.generateToken({
+            type: TokenType.SEPARATOR,
+            value: this.currentChar,
+          })
         );
       }
 
       this.forwardNextToken();
     }
 
-    this.tokens.push(this.generateToken(TokenType.EOF, "EOF"));
-
+    this.tokens.push(this.generateToken({ type: TokenType.EOF, value: "EOF" }));
     return this.tokens;
   }
 
@@ -50,7 +64,9 @@ export class Lexer {
       throw new Error("Unexcepted Token " + this.currentChar);
     }
 
-    this.tokens.push(this.generateToken(TokenType.OPERATOR, OP));
+    this.tokens.push(
+      this.generateToken({ type: TokenType.OPERATOR, value: OP })
+    );
     this.processValue();
   }
 
@@ -68,16 +84,17 @@ export class Lexer {
       throw new Error(LEXER_ERROR.IDENTIFIER_LEN);
 
     this.tokens.push(
-      this.generateToken(
-        TokenType.COLUMN,
-        identifier.split("").reverse().join("")
-      )
+      this.generateToken({
+        type: TokenType.COLUMN,
+        value: identifier.split("").reverse().join(""),
+      })
     );
     identifier = "";
   }
 
   private processValue() {
-    let value = "";
+    let value: number | string = "";
+    let possibleDataType: "NUMBER" | "STRING" = "NUMBER";
 
     while (
       !Separators.includes(this.currentChar) &&
@@ -87,9 +104,17 @@ export class Lexer {
       this.forwardNextToken();
     }
 
-    if (value.trim().length <= 0) throw new Error(LEXER_ERROR.VALUE_LEN);
+    const parseInt: number = Number.parseInt(value);
+    if (!Number.isInteger(parseInt)) {
+      possibleDataType = "STRING";
+    } else {
+      value = parseInt;
+    }
 
-    this.tokens.push(this.generateToken(TokenType.VALUE, value.trim()));
+    if (!value) throw new Error(LEXER_ERROR.VALUE_LEN);
+    this.tokens.push(
+      this.generateToken({ type: TokenType[possibleDataType], value: value })
+    );
     value = "";
   }
 
@@ -106,20 +131,10 @@ export class Lexer {
     }
   }
 
-  private generateToken(type: TokenType, value: string): tokenInterface {
+  private generateToken(token: tokenInterface): tokenInterface {
     return {
-      type: type,
-      value: value,
+      type: token.type,
+      value: token.value,
     };
-  }
-
-  private pos: number = 0;
-  private currentChar: string;
-  private readonly data: string;
-  private tokens: tokenInterface[] = [];
-
-  constructor(data: string) {
-    this.data = data;
-    this.currentChar = this.data[this.pos];
   }
 }
