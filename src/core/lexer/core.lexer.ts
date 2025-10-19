@@ -3,18 +3,13 @@ import { LEXER_ERROR } from "@/structures/constants/constant.error";
 
 export class Lexer {
   public main(): tokenInterface[] {
-    this.core();
-    return this.tokens;
-  }
-
-  private core() {
     if (this.data.length <= 0) {
       this.tokens.push(this.generateToken(TokenType.EOF, "EOF"));
       return this.tokens;
     }
 
     while (this.pos < this.data.length) {
-      this.processWhiteSpace();
+      this.forwardWhiteSpace();
 
       if (Operators.includes(this.currentChar)) {
         this.processOperators();
@@ -38,13 +33,8 @@ export class Lexer {
     }
 
     this.tokens.push(this.generateToken(TokenType.EOF, "EOF"));
-  }
 
-  private forwardNextToken() {
-    if (this.pos < this.data.length) {
-      this.pos++;
-      this.currentChar = this.data[this.pos];
-    }
+    return this.tokens;
   }
 
   private processOperators() {
@@ -103,29 +93,33 @@ export class Lexer {
     value = "";
   }
 
-  private processWhiteSpace() {
+  private forwardWhiteSpace(): void {
     if (this.currentChar == " ") {
       this.forwardNextToken();
     }
   }
 
-  private generateToken(type: string, value: string): tokenInterface {
-    const token: tokenInterface = {
+  private forwardNextToken(): void {
+    if (this.pos < this.data.length) {
+      this.pos++;
+      this.currentChar = this.data[this.pos];
+    }
+  }
+
+  private generateToken(type: TokenType, value: string): tokenInterface {
+    return {
       type: type,
       value: value,
     };
-    return token;
   }
 
-  private readonly data: string;
-  private pos: number;
+  private pos: number = 0;
   private currentChar: string;
-  private tokens: tokenInterface[];
+  private readonly data: string;
+  private tokens: tokenInterface[] = [];
 
   constructor(data: string) {
-    this.pos = 0;
     this.data = data;
     this.currentChar = this.data[this.pos];
-    this.tokens = [];
   }
 }
