@@ -51,7 +51,7 @@ export class Lexer {
     return this.tokens;
   }
 
-  private processOperators() {
+  private processOperators(): void {
     this.processIdentifier();
 
     let OP = this.currentChar;
@@ -70,7 +70,7 @@ export class Lexer {
     this.processValue();
   }
 
-  private processIdentifier() {
+  private processIdentifier(): void {
     let identifier: string = "";
     let virtualPos: number = this.pos - 1;
 
@@ -89,10 +89,11 @@ export class Lexer {
         value: identifier.split("").reverse().join("").trim(),
       })
     );
+    
     identifier = "";
   }
 
-  private processValue() {
+  private processValue(): void {
     let value: number | string = "";
     let possibleDataType: "NUMBER" | "STRING" = "NUMBER";
 
@@ -107,6 +108,7 @@ export class Lexer {
     const parseInt: number = Number.parseInt(value);
     if (!Number.isInteger(parseInt)) {
       possibleDataType = "STRING";
+      value = value.replace(/^["']|["']$/g, ""); // Normalize strings
     } else {
       value = parseInt;
     }
