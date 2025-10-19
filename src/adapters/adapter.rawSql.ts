@@ -3,7 +3,7 @@ import { treeInterface } from "@/structures/interfaces/interface.tree";
 
 export class SQLAdapter {
   execute(): flexQLResultInterface {
-    let values: any = [];
+    let values: string[] = [];
     const ast: any = this.ast;
 
     const rootLogic = ast.logic;
@@ -34,12 +34,10 @@ export class SQLAdapter {
         }
         this.whConditions.push(")");
 
-        // Don't create A logic mark at end of the conditions
         if (i !== conditions.length - 1) {
           this.whConditions.push(rootLogic);
         }
       } else {
-        // Straight conditions
         this.whConditions.push(
           ...[
             conditions[i]["column"],
@@ -49,7 +47,6 @@ export class SQLAdapter {
         );
         values.push(conditions[i]["value"]);
 
-        // Don't create A logic mark at end of the conditions
         if (i !== conditions.length - 1) {
           this.whConditions.push(rootLogic);
         }
