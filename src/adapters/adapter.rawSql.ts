@@ -12,7 +12,6 @@ export class SQLAdapter {
     this.whConditions.push("WHERE");
 
     for (let i = 0; i < conditions.length; i++) {
-      // Inner conditions
       if (conditions[i].conditions) {
         this.whConditions.push("(");
 

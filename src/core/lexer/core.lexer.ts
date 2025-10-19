@@ -39,7 +39,7 @@ export class Lexer {
         this.tokens.push(
           this.generateToken({
             type: TokenType.SEPARATOR,
-            value: this.currentChar,
+            value: this.currentChar.trim(),
           })
         );
       }
@@ -65,7 +65,7 @@ export class Lexer {
     }
 
     this.tokens.push(
-      this.generateToken({ type: TokenType.OPERATOR, value: OP })
+      this.generateToken({ type: TokenType.OPERATOR, value: OP.trim() })
     );
     this.processValue();
   }
@@ -86,7 +86,7 @@ export class Lexer {
     this.tokens.push(
       this.generateToken({
         type: TokenType.COLUMN,
-        value: identifier.split("").reverse().join(""),
+        value: identifier.split("").reverse().join("").trim(),
       })
     );
     identifier = "";
