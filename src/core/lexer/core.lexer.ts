@@ -1,5 +1,5 @@
-import { Operators, Separators, tokenInterface, TokenType } from "@/structures";
 import { LEXER_ERROR } from "@/structures/constants/constant.error";
+import { Operators, Separators, tokenInterface, TokenType } from "@/structures";
 
 export class Lexer {
   public main(): tokenInterface[] {
@@ -83,13 +83,13 @@ export class Lexer {
       !Separators.includes(this.currentChar) &&
       this.pos < this.data.length
     ) {
-      value += this.currentChar;
+      value += this.currentChar.trim();
       this.forwardNextToken();
     }
 
     if (value.trim().length <= 0) throw new Error(LEXER_ERROR.VALUE_LEN);
 
-    this.tokens.push(this.generateToken(TokenType.VALUE, value));
+    this.tokens.push(this.generateToken(TokenType.VALUE, value.trim()));
     value = "";
   }
 

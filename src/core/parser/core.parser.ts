@@ -34,6 +34,18 @@ export class Parser {
       let op: tokenInterface = this.consume();
       let value: tokenInterface = this.consume();
 
+      if (column.type != TokenType.COLUMN) {
+        throw new Error("Unexpected Token " + value.type);
+      }
+
+      if (op.type !== TokenType.OPERATOR) {
+        throw new Error("Unexpected Token " + value.type);
+      }
+
+      if (value.type !== TokenType.VALUE) {
+        throw new Error("Unexpected Token " + value.type);
+      }
+
       orConditions.push({
         column: column.value,
         op: op.value,
