@@ -89,7 +89,7 @@ export class Lexer {
         value: identifier.split("").reverse().join("").trim(),
       })
     );
-    
+
     identifier = "";
   }
 
