@@ -2,19 +2,26 @@ import { LEXER_ERROR } from "@/structures/constants/constant.error";
 import { Operators, Separators, tokenInterface, TokenType } from "@/structures";
 
 export class Lexer {
-  public main(): tokenInterface[] {
-    this.core();
-    return this.tokens;
+  private pos: number = 0;
+  private currentChar: string;
+  private readonly data: string;
+  private tokens: tokenInterface[] = [];
+
+  constructor(data: string) {
+    this.data = data;
+    this.currentChar = this.data[this.pos];
   }
 
-  private core() {
+  public main(): tokenInterface[] {
     if (this.data.length <= 0) {
-      this.tokens.push(this.generateToken(TokenType.EOF, "EOF"));
+      this.tokens.push(
+        this.generateToken({ type: TokenType.EOF, value: "EOF" })
+      );
       return this.tokens;
     }
 
     while (this.pos < this.data.length) {
-      this.processWhiteSpace();
+      this.forwardWhiteSpace();
 
       if (Operators.includes(this.currentChar)) {
         this.processOperators();
@@ -30,21 +37,18 @@ export class Lexer {
         }
 
         this.tokens.push(
-          this.generateToken(TokenType.SEPARATOR, this.currentChar)
+          this.generateToken({
+            type: TokenType.SEPARATOR,
+            value: this.currentChar,
+          })
         );
       }
 
       this.forwardNextToken();
     }
 
-    this.tokens.push(this.generateToken(TokenType.EOF, "EOF"));
-  }
-
-  private forwardNextToken() {
-    if (this.pos < this.data.length) {
-      this.pos++;
-      this.currentChar = this.data[this.pos];
-    }
+    this.tokens.push(this.generateToken({ type: TokenType.EOF, value: "EOF" }));
+    return this.tokens;
   }
 
   private processOperators() {
@@ -60,7 +64,9 @@ export class Lexer {
       throw new Error("Unexcepted Token " + this.currentChar);
     }
 
-    this.tokens.push(this.generateToken(TokenType.OPERATOR, OP));
+    this.tokens.push(
+      this.generateToken({ type: TokenType.OPERATOR, value: OP })
+    );
     this.processValue();
   }
 
@@ -78,54 +84,57 @@ export class Lexer {
       throw new Error(LEXER_ERROR.IDENTIFIER_LEN);
 
     this.tokens.push(
-      this.generateToken(
-        TokenType.COLUMN,
-        identifier.split("").reverse().join("")
-      )
+      this.generateToken({
+        type: TokenType.COLUMN,
+        value: identifier.split("").reverse().join(""),
+      })
     );
     identifier = "";
   }
 
   private processValue() {
-    let value = "";
+    let value: number | string = "";
+    let possibleDataType: "NUMBER" | "STRING" = "NUMBER";
 
     while (
       !Separators.includes(this.currentChar) &&
       this.pos < this.data.length
     ) {
-      value += this.currentChar;
+      value += this.currentChar.trim();
       this.forwardNextToken();
     }
 
-    if (value.trim().length <= 0) throw new Error(LEXER_ERROR.VALUE_LEN);
+    const parseInt: number = Number.parseInt(value);
+    if (!Number.isInteger(parseInt)) {
+      possibleDataType = "STRING";
+    } else {
+      value = parseInt;
+    }
 
-    this.tokens.push(this.generateToken(TokenType.VALUE, value));
+    if (!value) throw new Error(LEXER_ERROR.VALUE_LEN);
+    this.tokens.push(
+      this.generateToken({ type: TokenType[possibleDataType], value: value })
+    );
     value = "";
   }
 
-  private processWhiteSpace(): void {
+  private forwardWhiteSpace(): void {
     if (this.currentChar == " ") {
       this.forwardNextToken();
     }
   }
 
-  private generateToken(type: TokenType, value: string): tokenInterface {
-    const token: tokenInterface = {
-      type: type,
-      value: value,
-    };
-    return token;
+  private forwardNextToken(): void {
+    if (this.pos < this.data.length) {
+      this.pos++;
+      this.currentChar = this.data[this.pos];
+    }
   }
 
-  private pos: number;
-  private readonly data: string;
-  private currentChar: string;
-  private tokens: tokenInterface[];
-
-  constructor(data: string) {
-    this.pos = 0;
-    this.data = data;
-    this.currentChar = this.data[this.pos];
-    this.tokens = [];
+  private generateToken(token: tokenInterface): tokenInterface {
+    return {
+      type: token.type,
+      value: token.value,
+    };
   }
 }
