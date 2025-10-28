@@ -15,14 +15,11 @@ export class SQLAdapter {
     const rootLogic = ast.logic;
     const conditions = ast.conditions;
 
-    // ✅ Fix: check for conditions array instead of [ast].length === 1
     if (Array.isArray(conditions) && conditions.length > 0) {
-      // Process multiple query conditions
       for (let i = 0; i < conditions.length; i++) {
         const condition = conditions[i];
 
         if (condition.conditions) {
-          // Nested group
           this.whConditions.push("(");
 
           const innerConditions = condition.conditions;
@@ -47,7 +44,6 @@ export class SQLAdapter {
             this.whConditions.push(rootLogic);
           }
         } else {
-          // Single condition
           this.whConditions.push(
             condition["column"],
             condition["op"] === "==" ? "=" : condition["op"],
