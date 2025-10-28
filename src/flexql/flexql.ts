@@ -18,6 +18,7 @@ export class FlexQL {
     const tokens: tokenInterface[] | null = new Lexer(input).main();
     console.log(tokens);
     const parsed: treeInterface | null = new Parser(tokens).main();
+    console.log(parsed);
 
     return this.executeAdapter(parsed, settings);
   }

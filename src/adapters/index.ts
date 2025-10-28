@@ -1,2 +1,2 @@
 export * from "@/adapters";
-export * from "@/adapters/adapter.rawSql";
+export * from "@/adapters/adapter.sql";
