@@ -2,54 +2,64 @@ import { flexQLResultInterface } from "@/structures";
 import { treeInterface } from "@/structures/interfaces/interface.tree";
 
 export class SQLAdapter {
-  execute(): flexQLResultInterface {
-    let values: string[] = [];
-    const ast: any = this.ast;
+  private readonly ast: treeInterface | any;
+  private whConditions: string[] = ["WHERE"];
 
+  constructor(ast: treeInterface) {
+    this.ast = ast;
+  }
+
+  execute(): flexQLResultInterface {
+    const values: string[] = [];
+    const ast: any = this.ast;
     const rootLogic = ast.logic;
     const conditions = ast.conditions;
 
-    this.whConditions.push("WHERE");
+    if (Array.isArray(conditions) && conditions.length > 0) {
+      for (let i = 0; i < conditions.length; i++) {
+        const condition = conditions[i];
 
-    for (let i = 0; i < conditions.length; i++) {
-      if (conditions[i].conditions) {
-        this.whConditions.push("(");
+        if (condition.conditions) {
+          this.whConditions.push("(");
 
-        for (let j = 0; j < conditions[i].conditions.length; j++) {
-          let innerCondition = conditions[i].conditions;
+          const innerConditions = condition.conditions;
+          for (let j = 0; j < innerConditions.length; j++) {
+            const inner = innerConditions[j];
 
+            this.whConditions.push(
+              inner["column"],
+              inner["op"] === "==" ? "=" : inner["op"],
+              "?"
+            );
+            values.push(inner["value"]);
+
+            if (j < innerConditions.length - 1) {
+              this.whConditions.push(condition.logic);
+            }
+          }
+
+          this.whConditions.push(")");
+
+          if (i < conditions.length - 1) {
+            this.whConditions.push(rootLogic);
+          }
+        } else {
           this.whConditions.push(
-            ...[
-              innerCondition[j]["column"],
-              innerCondition[j]["op"] == "==" ? "=" : innerCondition[j]["op"],
-              "?",
-            ]
+            condition["column"],
+            condition["op"] === "==" ? "=" : condition["op"],
+            "?"
           );
-          values.push(innerCondition[j]["value"]);
+          values.push(condition["value"]);
 
-          if (j >= 0 && j < innerCondition.length - 1) {
-            this.whConditions.push(conditions[i].logic);
+          if (i < conditions.length - 1) {
+            this.whConditions.push(rootLogic);
           }
         }
-        this.whConditions.push(")");
-
-        if (i !== conditions.length - 1) {
-          this.whConditions.push(rootLogic);
-        }
-      } else {
-        this.whConditions.push(
-          ...[
-            conditions[i]["column"],
-            conditions[i]["op"] == "==" ? "=" : conditions[i]["op"],
-            "?",
-          ]
-        );
-        values.push(conditions[i]["value"]);
-
-        if (i !== conditions.length - 1) {
-          this.whConditions.push(rootLogic);
-        }
       }
+    } else {
+      // Process just one simple query
+      this.whConditions.push(ast.column, ast.op === "==" ? "=" : ast.op, "?");
+      values.push(ast.value);
     }
 
     return {
@@ -57,14 +67,8 @@ export class SQLAdapter {
       payload: {
         conditions:
           this.whConditions.length === 1 ? "" : this.whConditions.join(" "),
-        values: values,
+        values,
       },
     };
-  }
-
-  private readonly ast: treeInterface;
-  private whConditions: string[] = [];
-  constructor(ast: treeInterface) {
-    this.ast = ast;
   }
 }
