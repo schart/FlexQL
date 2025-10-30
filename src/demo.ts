@@ -4,11 +4,11 @@ import { flexQLResultInterface, runQuerySettingsInterface } from "./structures";
 const flexQl = new FlexQL();
 const runQuerySettings: runQuerySettingsInterface = {
   separators: { and: ";", or: "," },
-  adapter: "raw-sql",
+  adapter: "sequelize",
 };
 
 const generatedCode: flexQLResultInterface | null = flexQl.generate(
-  `username==heja;age>10,isAdmin==true`, // `A == 5 , B > 5 ; C > 5 , D > 5 ; E > 5 , F > 5 ; G == heja`,
+  `username=="heja",country=="NL";score>90,rank>=5,level=="pro";created_at>="2025-01-01";updated_at<="2025-10-01",last_login>="2025-09-01";active==true,verified==true`,
   runQuerySettings
 );
 

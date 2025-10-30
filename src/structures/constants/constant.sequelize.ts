@@ -2,8 +2,8 @@ import { Op } from "sequelize";
 
 export const SEQUZELIZE_OPERATORS: Record<any, any> = {
   // Logic
-  and: Op.and,
-  or: Op.or,
+  AND: Op.and,
+  OR: Op.or,
 
   // comparisons
   ">": Op.gt,

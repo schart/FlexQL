@@ -1,2 +1,2 @@
-export type adapterType = "raw-sql"; //| "sequelize";
+export type adapterType = "sql" | "sequelize";
 export type separatorsType = "&" | "|" | "!" | ";" | "->" | ",";
