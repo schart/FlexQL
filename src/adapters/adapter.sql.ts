@@ -63,7 +63,7 @@ export class SQLAdapter {
     }
 
     return {
-      type: "raw-sql",
+      type: "sql",
       payload: {
         conditions:
           this.whConditions.length === 1 ? "" : this.whConditions.join(" "),

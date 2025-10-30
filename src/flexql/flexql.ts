@@ -8,6 +8,7 @@ import {
   runQuerySettingsInterface,
 } from "@/structures";
 import { treeInterface } from "@/structures/interfaces/interface.tree";
+import { SequelizeAdapter } from "@/adapters/adapter.sequelize";
 
 export class FlexQL {
   public generate(
@@ -16,9 +17,7 @@ export class FlexQL {
   ): flexQLResultInterface | null {
     this.preSettings(settings);
     const tokens: tokenInterface[] | null = new Lexer(input).main();
-    console.log(tokens);
     const parsed: treeInterface | null = new Parser(tokens).main();
-    console.log(parsed);
 
     return this.executeAdapter(parsed, settings);
   }
@@ -32,11 +31,11 @@ export class FlexQL {
     }
 
     const adapters: Record<adapterType, flexQLResultInterface<any>> = {
-      "raw-sql": new SQLAdapter(ast).execute(),
-      // sequelize: new SequelizeAdapter(ast).execute(),
+      sql: new SQLAdapter(ast).execute(),
+      sequelize: new SequelizeAdapter(ast).generate(),
     };
 
-    return adapters[adapter || "raw-sql"];
+    return adapters[adapter || "sql"];
   }
 
   private preSettings(settings?: runQuerySettingsInterface | {}) {
