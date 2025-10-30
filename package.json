@@ -1,20 +1,16 @@
 {
   "name": "flexql",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A lightweight but powerful query language engine",
-  "main": "dist/index.js",
-  "type": "module",
-  "author": "Heja “xeja” Arslan",
-  "license": "MIT",
   "main": "index.js",
+  "type": "commonjs",
+  "author": "",
+  "license": "ISC",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/demo.ts",
     "test": "jest"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.15",
