@@ -120,7 +120,7 @@ CategoryName==Beverages ; age>10
 **Query:**
 
 ```
-username=="heja",country=="NL";score>90,rank>=5;active==true,verified==true
+username=="heja",country=="NL";score>90,rank>=5,level=="pro";created_at>="2025-01-01";updated_at<="2025-10-01",last_login>="2025-09-01";active==true,verified==true
 ```
 
 **Output:**
@@ -131,12 +131,11 @@ username=="heja",country=="NL";score>90,rank>=5;active==true,verified==true
   payload: {
     conditions: {
       where: [
-        { [Symbol(or)]: [ { username: 'heja' }, { country: 'NL' } ] },
-        { [Symbol(or)]: [
-            { score: { [Symbol(gt)]: 90 } },
-            { rank: { [Symbol(gte)]: 5 } }
-        ] },
-        { [Symbol(or)]: [ { active: 'true' }, { verified: 'true' } ] }
+        { created_at: { [Symbol(gte)]: '2025-01-01' } },
+        { [Symbol(or)]: [ [Object], [Object] ] },
+        { [Symbol(or)]: [ [Object], [Object], [Object] ] },
+        { [Symbol(or)]: [ [Object], [Object] ] },
+        { [Symbol(or)]: [ [Object], [Object] ] }
       ]
     }
   }
