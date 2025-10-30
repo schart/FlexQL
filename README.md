@@ -8,8 +8,7 @@ A lightweight but powerful **query language engine** that allows you to filter d
 
 ## 🚀 Overview
 
-**FlexQL** provides developers with a **readable and simple** query language.
-You can create filters easily without writing SQL.
+**FlexQL** provides developers with a **readable and simple** query language that works across databases and ORMs.
 
 **Example query:**
 
@@ -23,19 +22,19 @@ This means:
 (username == "heja" AND age > 18) OR (status == "active")
 ```
 
-> ⚠️ **Note:** Space (` `) cannot be used as a separator.
+> ⚠️ **Note:** Spaces (` `) cannot be used as separators.
 
 ---
 
 ## ✨ Features
 
 - 🧠 **Readable syntax** — simple and intuitive
-- 🔀 **Flexible separators** — use `;`, `,`, or custom-defined characters
+- 🔀 **Flexible separators** — `;` for AND, `,` for OR (or custom-defined)
 - 🔒 **Secure parsing** — protected against SQL injections
-- ⚙️ **Adapter-based architecture** — integrates with SQL, MongoDB, Elasticsearch, or your own system
+- ⚙️ **Adapter-based architecture** — supports SQL, Sequelize, MongoDB, and more
 - 🧱 **Lexer → Parser → Adapter** pipeline — modular and extensible
 - 🧪 **Validated syntax** and type checking
-- 🧰 **Easy to extend** — add new adapters quickly
+- 🧰 **Easy to extend** — build new adapters quickly
 
 ---
 
@@ -44,29 +43,31 @@ This means:
 **Main Pipeline:**
 
 ```
-+--------+       +--------+       +---------+
-| Lexer  |  -->  | Parser |  -->  | Adapter |
-+--------+       +--------+       +---------+
++--------+       +--------+       +------------+
+| Lexer  |  -->  | Parser |  -->  | Adapter(s) |
++--------+       +--------+       +------------+
      |                |               |
-   Tokens         N-ary Tree     SQL/Mongo/Elastic
+   Tokens         N-ary Tree     SQL / Sequelize / Mongo
 ```
 
-1. **Lexer**: Breaks the query string into meaningful components (tokens).
-2. **Parser**: Validates syntax and builds an **N-ary Tree (ANT)**.
-3. **Adapter**: Converts this tree into the target format (SQL, MongoDB, Elasticsearch, etc).
-   This process uses **parameterized queries**, ensuring injection safety.
+1. **Lexer** — breaks the query string into tokens
+2. **Parser** — validates syntax and builds an **N-ary Abstract Syntax Tree (AST)**
+3. **Adapter** — converts this AST into the target output, such as:
+   - **Raw SQL**
+   - **Sequelize conditions**
+   - (coming soon) **MongoDB**, **Elasticsearch**, etc.
 
 ---
 
 ## 🌳 AST Example
 
-Query:
+**Query:**
 
 ```
 username==heja;age>18,status==active
 ```
 
-Generated AST (simplified):
+**Generated AST (simplified):**
 
 ```json
 {
@@ -84,19 +85,21 @@ Generated AST (simplified):
 }
 ```
 
-> This AST shows that FlexQL is **not just a string parser, but a real query engine**.
+> 🧩 This shows FlexQL is not just a parser, but a real query engine.
 
 ---
 
-## 🧱 Standard Output Example
+## 🧱 Adapter Outputs
 
-Query:
+### 🔹 Raw SQL Adapter
+
+**Query:**
 
 ```
 CategoryName==Beverages ; age>10
 ```
 
-With the **RawSQL** adapter, it produces a secure output:
+**Output:**
 
 ```js
 {
@@ -108,8 +111,45 @@ With the **RawSQL** adapter, it produces a secure output:
 }
 ```
 
-> ✅ **Safe from SQL injection.**
-> Values are never concatenated directly into the SQL string.
+✅ **Safe from SQL injection** — all values are parameterized.
+
+---
+
+### 🔹 Sequelize Adapter
+
+**Query:**
+
+```
+username=="heja",country=="NL";score>90,rank>=5;active==true,verified==true
+```
+
+**Output:**
+
+```js
+{
+  type: 'sequelize',
+  payload: {
+    conditions: {
+      where: [
+        { [Symbol(or)]: [ { username: 'heja' }, { country: 'NL' } ] },
+        { [Symbol(or)]: [
+            { score: { [Symbol(gt)]: 90 } },
+            { rank: { [Symbol(gte)]: 5 } }
+        ] },
+        { [Symbol(or)]: [ { active: 'true' }, { verified: 'true' } ] }
+      ]
+    }
+  }
+}
+```
+
+This produces a **fully Sequelize-compatible structure**, suitable for:
+
+```js
+Model.findAll({ where: conditions.where });
+```
+
+> ⚙️ The adapter automatically groups **AND (`;`)** and **OR (`,`)** conditions.
 
 ---
 
@@ -119,29 +159,22 @@ With the **RawSQL** adapter, it produces a secure output:
 | -------------- | ------------------- | -------------------------------- |
 | **Identifier** | Column/field name   | `username`, `age`, `status`      |
 | **Operator**   | Comparison operator | `==`, `!=`, `>`, `<`, `>=`, `<=` |
-| **Logic**      | Combine conditions  | `;`, `,` or custom separators    |
+| **Logic**      | Combine conditions  | `;` (AND), `,` (OR)              |
 | **Value**      | Value to match      | `"heja"`, `18`, `true`           |
 
 ---
 
 ## 🧩 Examples
 
-Valid queries:
-
 ```
 username==test ; age>10
-username==test , status == false
+username==test , status==false
 ```
 
-With custom separators:
-
-```js
-FlexQL.parse(query1, { adapter: "raw-sql", separators: { and: "!", or: "," } });
-```
+**Complex query:**
 
 ```
-username==heja ! age>18
-username==heja ! status==active , score>=100
+username=="heja",country=="NL";score>90,rank>=5;active==true,verified==true
 ```
 
 ---
@@ -155,42 +188,43 @@ npm install flexql
 ```js
 import { FlexQL } from "flexql";
 
-// Default separators (; and ,)
-const query = "username==heja;age>18";
-const sql = FlexQL.parse(query, { adapter: "raw-sql" });
+// Sequelize example
+const query = 'username=="heja";age>18;country=="NL"';
+const result = FlexQL.parse(query, { adapter: "sequelize" });
 
-console.log(sql);
+console.log(result.payload.conditions);
 ```
 
 ---
 
 ## 💡 Why FlexQL?
 
-- ✅ **Readable** — even complex filters are easy to write
-- 🧱 **Standardized** — one language across multiple data sources
-- 🧠 **Smart** — understands logical precedence rules (AND > OR)
-- 🔒 **Secure** — parameterized queries prevent SQL injection
-- 🌍 **Portable** — adapter-based structure for any database
-- 🧩 **Modular** — easily extensible and adaptable
+- ✅ **Readable** — even complex filters stay human-friendly
+- 🧱 **Unified syntax** — one language for SQL, Sequelize, MongoDB
+- 🧠 **Smart** — understands logical precedence (AND > OR)
+- 🔒 **Secure** — parameterized, safe from injection
+- 🌍 **Portable** — adapter-based architecture
+- 🧩 **Modular** — easily extended
 
 ---
 
 ## 🧑‍💻 Use Cases
 
-- Dynamic filtering in **admin panels** or **dashboards**
-- **Rule engines** or **bonus systems** requiring conditional logic
-- Safely parsing **API query parameters**
-- Creating a **database-agnostic query layer**
+- Dynamic filtering in **admin dashboards**
+- Building **ORM-independent query engines**
+- Safe query parsing in **API parameters**
+- Configurable **rule-based logic systems**
 
 ---
 
 ## 🧭 Roadmap
 
+- [x] Sequelize adapter
 - [ ] MongoDB and Elasticsearch adapters
 - [ ] Parenthesis (nested query) support
 - [ ] Type inference for field-value pairs
-- [ ] Query optimizer (merging redundant conditions)
-- [ ] Web-based FlexQL Playground
+- [ ] Query optimizer
+- [ ] FlexQL Playground
 
 ---
 
