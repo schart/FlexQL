@@ -113,7 +113,7 @@ export class Lexer {
       value = parseInt;
     }
 
-    if (!value) throw new Error(LEXER_ERROR.VALUE_LEN);
+    if (value !== 0 && !value) throw new Error(LEXER_ERROR.VALUE_LEN);
     this.tokens.push(
       this.generateToken({ type: TokenType[possibleDataType], value: value })
     );
