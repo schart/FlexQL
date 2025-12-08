@@ -6,8 +6,17 @@ import {
 } from "@/structures/interfaces/interface.parser";
 
 export class Parser {
-  public main(): InterfaceLogicalConditions | null {
-    this.parser();
+  private pos: number;
+  public tree = new Tree();
+  private readonly tokens: tokenInterface[];
+
+  constructor(tokens: tokenInterface[]) {
+    this.tokens = tokens;
+    this.pos = 0;
+  }
+
+  public parse(): InterfaceLogicalConditions | null {
+    this.core();
     return this.tree.peek();
   }
 
@@ -16,15 +25,16 @@ export class Parser {
   }
 
   private consume(): tokenInterface {
-    let current: number = 0;
+    let currentPos: number = 0;
     if (this.pos < this.tokens.length) {
-      current = this.pos;
+      currentPos = this.pos;
       this.pos++;
     }
-    return this.tokens[current];
+    return this.tokens[currentPos];
   }
 
-  private parser() {
+  // Core/key stage of parser
+  private core() {
     let andConditions: (InterfaceLogicalConditions | InterfaceConditions)[] =
       [];
     let orConditions: (InterfaceLogicalConditions | InterfaceConditions)[] = [];
@@ -34,16 +44,16 @@ export class Parser {
       let op: tokenInterface = this.consume();
       let value: tokenInterface = this.consume();
 
-      if (column.type != TokenType.COLUMN) {
-        throw new Error("Unexpected Token " + value.type);
+      if (!Object.values(TokenType).includes(column.type)) {
+        throw new Error("Unexpected column token: " + column.type);
       }
 
-      if (op.type !== TokenType.OPERATOR) {
-        throw new Error("Unexpected Token " + value.type);
+      if (!Object.values(TokenType).includes(op.type)) {
+        throw new Error("Unexpected operator token: " + op.type);
       }
 
-      if (value.type !== TokenType.STRING && value.type !== TokenType.NUMBER) {
-        throw new Error("Unexpected Token " + value.type);
+      if (!Object.values(TokenType).includes(value.type)) {
+        throw new Error("Unexpected value token: " + value.type);
       }
 
       orConditions.push({
@@ -86,14 +96,5 @@ export class Parser {
     } else {
       this.tree.insert({ logic: "AND", conditions: andConditions });
     }
-  }
-
-  private pos: number;
-  public tree = new Tree();
-  private readonly tokens: tokenInterface[];
-
-  constructor(tokens: tokenInterface[]) {
-    this.tokens = tokens;
-    this.pos = 0;
   }
 }

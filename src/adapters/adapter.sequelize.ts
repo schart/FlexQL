@@ -1,11 +1,11 @@
 import { flexQLResultInterface } from "@/structures";
 import { treeInterface } from "@/structures/interfaces/interface.tree";
-import { SEQUZELIZE_OPERATORS } from "@/structures/constants/constant.sequelize";
 import { InterfaceConditions } from "@/structures/interfaces/interface.parser";
+import { SEQUZELIZE_OPERATORS } from "@/structures/constants/constant.sequelize";
 
 export class SequelizeAdapter {
+  private whConditions: Record<any, any> = {};
   private readonly ast: treeInterface | any;
-  private whConditions: any = {};
 
   constructor(ast: treeInterface) {
     this.ast = ast;
