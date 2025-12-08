@@ -8,6 +8,7 @@
   "license": "ISC",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/demo.ts",
+    "start:dev": "clear && ts-node -r tsconfig-paths/register src/demo.ts",
     "test": "jest"
   },
   "keywords": [],
