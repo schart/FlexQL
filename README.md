@@ -89,7 +89,7 @@ username==heja;age>18,status==active
 
 ## 🧱 Adapter Outputs
 
-### 🔹 Raw SQL Adapter
+### 🔹 SQL Adapter
 
 **Query:**
 
@@ -101,7 +101,7 @@ CategoryName==Beverages ; age>10
 
 ```js
 {
-  type: 'raw-sql',
+  type: 'sql',
   payload: {
     conditions: 'WHERE CategoryName = ? AND age > ?',
     values: ['Beverages', '10']
