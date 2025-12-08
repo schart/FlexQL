@@ -2,8 +2,6 @@
 
 A lightweight but powerful **query language engine** that allows you to filter data **without writing complex SQL or ORM queries**.
 
-> 🇹🇷 Turkish version → [README-TR.md](./README-TR.md)
-
 ---
 
 ## 🚀 Overview
@@ -154,12 +152,12 @@ Model.findAll({ where: conditions.where });
 
 ## 🔤 Syntax Reference
 
-| Element        | Description         | Examples                         |
-| -------------- | ------------------- | -------------------------------- |
-| **Identifier** | Column/field name   | `username`, `age`, `status`      |
-| **Operator**   | Comparison operator | `==`, `!=`, `>`, `<`, `>=`, `<=` |
-| **Logic**      | Combine conditions  | `;` (AND), `,` (OR)              |
-| **Value**      | Value to match      | `"heja"`, `18`, `true`           |
+| Element        | Description         | Examples                               |
+| -------------- | ------------------- | -------------------------------------- |
+| **Identifier** | Column/field name   | `username`, `age`, `status`            |
+| **Operator**   | Comparison operator | `==`, `!=`, `>`, `<`, `>=`, `<=`       |
+| **Logic**      | Combine conditions  | `;` (AND), `,` (OR), 'custom' (AND/OR) |
+| **Value**      | Value to match      | `"heja"`, `18`, `true`                 |
 
 ---
 
@@ -180,6 +178,10 @@ username=="heja",country=="NL";score>90,rank>=5;active==true,verified==true
 
 ## 📦 Installation & Usage
 
+Coming Soon
+
+<!--
+
 ```bash
 npm install flexql
 ```
@@ -192,7 +194,7 @@ const query = 'username=="heja";age>18;country=="NL"';
 const result = FlexQL.parse(query, { adapter: "sequelize" });
 
 console.log(result.payload.conditions);
-```
+``` -->
 
 ---
 
