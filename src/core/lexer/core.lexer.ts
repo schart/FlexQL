@@ -1,5 +1,6 @@
 import { LEXER_ERROR } from "@/structures/constants/constant.error";
 import { Operators, Separators, tokenInterface, TokenType } from "@/structures";
+import { isBooleanObject } from "util/types";
 
 export class Lexer {
   private pos: number = 0;
@@ -12,7 +13,11 @@ export class Lexer {
     this.currentChar = this.data[this.pos];
   }
 
-  public main(): tokenInterface[] {
+  public tokenizer(): tokenInterface[] {
+    return this.core();
+  }
+
+  private core(): tokenInterface[] {
     if (this.data.length <= 0) {
       this.tokens.push(
         this.generateToken({ type: TokenType.EOF, value: "EOF" })
@@ -67,7 +72,7 @@ export class Lexer {
     this.tokens.push(
       this.generateToken({ type: TokenType.OPERATOR, value: OP.trim() })
     );
-    this.processValue();
+    this.processLiteral();
   }
 
   private processIdentifier(): void {
@@ -93,9 +98,9 @@ export class Lexer {
     identifier = "";
   }
 
-  private processValue(): void {
-    let value: number | string = "";
-    let possibleDataType: "NUMBER" | "STRING" = "NUMBER";
+  private processLiteral(): void {
+    let value: number | string | boolean = "";
+    let possibleDataType: "NUMBER" | "STRING" | "BOOLEAN" = "NUMBER";
 
     while (
       !Separators.includes(this.currentChar) &&
@@ -105,12 +110,16 @@ export class Lexer {
       this.forwardNextToken();
     }
 
-    const parseInt: number = Number.parseInt(value);
-    if (!Number.isInteger(parseInt)) {
-      possibleDataType = "STRING";
-      value = value.replace(/^["']|["']$/g, ""); // Normalize  strings
+    if (isBooleanObject(new Boolean(value)) === true) {
+      possibleDataType = "BOOLEAN";
     } else {
-      value = parseInt;
+      const parseInt: number = Number.parseInt(value);
+      if (!Number.isInteger(parseInt)) {
+        value = parseInt;
+      } else {
+        possibleDataType = "STRING";
+        value = value.replace(/^["']|["']$/g, ""); // Normalize Strings
+      }
     }
 
     if (value !== 0 && !value) throw new Error(LEXER_ERROR.VALUE_LEN);
