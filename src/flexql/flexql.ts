@@ -1,23 +1,24 @@
 import { Lexer, Parser } from "@/core";
 import { SQLAdapter } from "@/adapters";
 import { Settings } from "@/settings/settings";
-import { adapterType } from "@/structures/types/type.adapter";
 import {
   tokenInterface,
   flexQLResultInterface,
   runQuerySettingsInterface,
 } from "@/structures";
-import { treeInterface } from "@/structures/interfaces/interface.tree";
+import { adapterType } from "@/structures/types/type.adapter";
 import { SequelizeAdapter } from "@/adapters/adapter.sequelize";
+import { treeInterface } from "@/structures/interfaces/interface.tree";
 
 export class FlexQL {
   public generate(
     input: string,
     settings?: runQuerySettingsInterface
-  ): flexQLResultInterface | null {
+  ): flexQLResultInterface {
     this.preSettings(settings);
-    const tokens: tokenInterface[] | null = new Lexer(input).main();
-    const parsed: treeInterface | null = new Parser(tokens).main();
+
+    const tokens: tokenInterface[] | null = new Lexer(input).tokenizer(); // Separate to words
+    const parsed: treeInterface | null = new Parser(tokens).parse(); // Generate an AST
 
     return this.executeAdapter(parsed, settings);
   }
@@ -25,9 +26,9 @@ export class FlexQL {
   private executeAdapter(
     ast: treeInterface | null,
     { adapter }: Pick<runQuerySettingsInterface, "adapter"> = {}
-  ): flexQLResultInterface | null {
+  ): flexQLResultInterface {
     if (!ast) {
-      return null;
+      return { type: adapter || "sql", payload: null };
     }
 
     const adapters: Record<adapterType, flexQLResultInterface<any>> = {
