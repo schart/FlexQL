@@ -19,7 +19,6 @@ export class FlexQL {
 
     const tokens: tokenInterface[] | null = new Lexer(input).tokenizer(); // Separate to words
     const parsed: treeInterface | null = new Parser(tokens).parse(); // Generate an AST
-
     return this.executeAdapter(parsed, settings);
   }
 

@@ -31,6 +31,7 @@ export class SQLAdapter {
               inner["op"] === "==" ? "=" : inner["op"],
               "?"
             );
+
             values.push(inner["value"]);
 
             if (j < innerConditions.length - 1) {

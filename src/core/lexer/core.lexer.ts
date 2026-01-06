@@ -72,6 +72,7 @@ export class Lexer {
     this.tokens.push(
       this.generateToken({ type: TokenType.OPERATOR, value: OP.trim() })
     );
+
     this.processLiteral();
   }
 
@@ -126,6 +127,7 @@ export class Lexer {
     this.tokens.push(
       this.generateToken({ type: TokenType[possibleDataType], value: value })
     );
+
     value = "";
   }
 
