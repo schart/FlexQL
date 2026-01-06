@@ -17,7 +17,7 @@ export class Tree {
   }
 
   peek(): treeInterface | null {
-    return this.tree || null;
+    return this.tree;
   }
 
   private tree: treeInterface | null;

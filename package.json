@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
+    "mongoose": "^9.1.2",
     "sequelize": "^6.37.7"
   }
 }

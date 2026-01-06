@@ -3,6 +3,7 @@ export enum TokenType {
   OPERATOR = "OPERATOR",
   STRING = "STRING",
   NUMBER = "NUMBER",
+  BOOLEAN = "BOOLEAN",
   SEPARATOR = "SEPARATOR",
   EOF = "EOF",
   VALUE = "VALUE",
