@@ -7,7 +7,6 @@ export class Tree {
       this.tree = object;
       return;
     }
-
     this.tree.conditions.push(object as InterfaceLogicalConditions);
   }
 
