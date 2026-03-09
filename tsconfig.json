@@ -11,9 +11,14 @@
     "paths": {
       "@/*": ["*"]
     },
-    "moduleResolution": "node"
+    "moduleResolution": "node",
     
+    
+ 
   },
+  // "paths": {
+  //     "flexql": ["../flexql/src"]
+  //   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

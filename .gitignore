@@ -4,7 +4,8 @@ node_modules/
 # Build output
 dist/
 build/
-docs/
+docs/CHECK_LIST.md
+tests/flexql-test
 
 # Logs
 npm-debug.log*
