@@ -5,7 +5,7 @@
 A lightweight yet powerful **query language engine** that lets you filter data **without writing complex SQL or ORM queries**.
 
 <p align="center">
-  <img src="docs/flexql_acthitecture.png" width="650"/>
+  <img src="docs/Flexql-architecture.png" width="650"/>
 </p>
 
 ---
