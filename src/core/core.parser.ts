@@ -1,10 +1,10 @@
-import { Tree } from "@/ast";
-import { TokenType, tokenInterface, separatorRecord } from "@/structures";
-import {
-  InterfaceConditions,
-  InterfaceLogicalConditions,
-} from "@/structures/interfaces/interface.parser";
+import { separatorRecord } from "@/shared/constants";
+import { TokenType } from "@/shared/enums/enum.lexer";
+import { tokenInterface } from "@/shared/interfaces/interface.lexer";
+import { InterfaceLogicalConditions, InterfaceConditions } from "@/shared/interfaces/interface.parser";
+import { Tree } from "./tree";
 
+ 
 export class Parser {
   private pos: number;
   public tree = new Tree();

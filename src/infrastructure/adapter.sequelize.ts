@@ -1,8 +1,9 @@
-import { flexQLResultInterface } from "@/structures";
-import { treeInterface } from "@/structures/interfaces/interface.tree";
-import { InterfaceConditions } from "@/structures/interfaces/interface.parser";
-import { SEQUZELIZE_OPERATORS } from "@/structures/constants/constant.sequelize";
+import { treeInterface } from "@/shared/interfaces/interface.tree";
+import { InterfaceConditions } from "@/shared/interfaces/interface.parser";
+import { SEQUZELIZE_OPERATORS } from "@/shared/constants/constant.sequelize";
+import { flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
 
+ 
 export class SequelizeAdapter {
   private whConditions: Record<any, any> = {};
   private readonly ast: treeInterface | any;

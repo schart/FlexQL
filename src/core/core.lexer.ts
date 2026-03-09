@@ -1,5 +1,6 @@
-import { LEXER_ERROR } from "@/structures/constants/constant.error";
-import { Operators, Separators, tokenInterface, TokenType } from "@/structures";
+import { Operators, Separators, LEXER_ERROR } from "@/shared/constants";
+import { TokenType } from "@/shared/enums/enum.lexer";
+import { tokenInterface } from "@/shared/interfaces/interface.lexer";
 import { isBooleanObject } from "util/types";
 
 export class Lexer {

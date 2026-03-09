@@ -1,2 +1,3 @@
-export * from "@/core/lexer/core.lexer";
-export * from "@/core/parser/core.parser";
+export * from "@/core/core.lexer";
+export * from "@/core/core.parser";
+export * from "@/core/tree";

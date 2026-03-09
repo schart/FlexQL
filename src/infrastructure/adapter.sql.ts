@@ -1,5 +1,5 @@
-import { flexQLResultInterface } from "@/structures";
-import { treeInterface } from "@/structures/interfaces/interface.tree";
+import { treeInterface } from "@/shared/interfaces/interface.tree";
+import { flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
 
 export class SQLAdapter {
   private readonly ast: treeInterface | any;
@@ -29,7 +29,7 @@ export class SQLAdapter {
             this.whConditions.push(
               inner["column"],
               inner["op"] === "==" ? "=" : inner["op"],
-              "?"
+              "?",
             );
 
             values.push(inner["value"]);
@@ -48,7 +48,7 @@ export class SQLAdapter {
           this.whConditions.push(
             condition["column"],
             condition["op"] === "==" ? "=" : condition["op"],
-            "?"
+            "?",
           );
           values.push(condition["value"]);
 

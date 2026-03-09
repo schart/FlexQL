@@ -1,15 +1,13 @@
 import { Lexer, Parser } from "@/core";
-import { SQLAdapter } from "@/adapters";
-import { Settings } from "@/settings/settings";
-import {
-  tokenInterface,
-  flexQLResultInterface,
-  runQuerySettingsInterface,
-} from "@/structures";
-import { adapterType } from "@/structures/types/type.adapter";
-import { SequelizeAdapter } from "@/adapters/adapter.sequelize";
-import { treeInterface } from "@/structures/interfaces/interface.tree";
+import { Settings } from "@/config/settings";
+import { adapterType } from "@/shared/types/type.adapter";
+import { SQLAdapter } from "@/infrastructure/adapter.sql";
+import { treeInterface } from "@/shared/interfaces/interface.tree";
+import { tokenInterface } from "@/shared/interfaces/interface.lexer";
+import { SequelizeAdapter } from "@/infrastructure/adapter.sequelize";
+import { runQuerySettingsInterface, flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
 
+ 
 export class FlexQL {
   public generate(
     input: string,
