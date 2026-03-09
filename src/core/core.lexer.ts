@@ -21,7 +21,7 @@ export class Lexer {
   private core(): tokenInterface[] {
     if (this.data.length <= 0) {
       this.tokens.push(
-        this.generateToken({ type: TokenType.EOF, value: "EOF" })
+        this.generateToken({ type: TokenType.EOF, value: "EOF" }),
       );
       return this.tokens;
     }
@@ -46,7 +46,7 @@ export class Lexer {
           this.generateToken({
             type: TokenType.SEPARATOR,
             value: this.currentChar.trim(),
-          })
+          }),
         );
       }
 
@@ -71,7 +71,7 @@ export class Lexer {
     }
 
     this.tokens.push(
-      this.generateToken({ type: TokenType.OPERATOR, value: OP.trim() })
+      this.generateToken({ type: TokenType.OPERATOR, value: OP.trim() }),
     );
 
     this.processLiteral();
@@ -94,7 +94,7 @@ export class Lexer {
       this.generateToken({
         type: TokenType.COLUMN,
         value: identifier.split("").reverse().join("").trim(),
-      })
+      }),
     );
 
     identifier = "";
@@ -112,21 +112,21 @@ export class Lexer {
       this.forwardNextToken();
     }
 
-    if (isBooleanObject(new Boolean(value)) === true) {
+    console.log(Number.isInteger(Number.parseInt(value)), value);
+
+    if (value == "true" || value == "false") {
       possibleDataType = "BOOLEAN";
+      value = Boolean(value);
+    } else if (Number.isInteger(Number.parseInt(value))) {
+      value = Number.parseInt(value);
     } else {
-      const parseInt: number = Number.parseInt(value);
-      if (!Number.isInteger(parseInt)) {
-        value = parseInt;
-      } else {
-        possibleDataType = "STRING";
-        value = value.replace(/^["']|["']$/g, ""); // Normalize Strings
-      }
+      possibleDataType = "STRING";
+      value = value.replace(/^["']|["']$/g, "");
     }
 
     if (value !== 0 && !value) throw new Error(LEXER_ERROR.VALUE_LEN);
     this.tokens.push(
-      this.generateToken({ type: TokenType[possibleDataType], value: value })
+      this.generateToken({ type: TokenType[possibleDataType], value: value }),
     );
 
     value = "";

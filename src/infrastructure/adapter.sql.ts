@@ -7,6 +7,7 @@ export class SQLAdapter {
 
   constructor(ast: treeInterface) {
     this.ast = ast;
+    console.log("this.ast: ", this.ast)
   }
 
   execute(): flexQLResultInterface {
