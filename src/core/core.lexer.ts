@@ -112,7 +112,6 @@ export class Lexer {
       this.forwardNextToken();
     }
 
-    console.log(Number.isInteger(Number.parseInt(value)), value);
 
     if (value == "true" || value == "false") {
       possibleDataType = "BOOLEAN";

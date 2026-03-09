@@ -1,10 +1,12 @@
 import { separatorRecord } from "@/shared/constants";
 import { TokenType } from "@/shared/enums/enum.lexer";
 import { tokenInterface } from "@/shared/interfaces/interface.lexer";
-import { InterfaceLogicalConditions, InterfaceConditions } from "@/shared/interfaces/interface.parser";
+import {
+  InterfaceLogicalConditions,
+  InterfaceConditions,
+} from "@/shared/interfaces/interface.parser";
 import { Tree } from "./core.tree";
 
- 
 export class Parser {
   private pos: number;
   public tree = new Tree();
@@ -56,7 +58,6 @@ export class Parser {
         throw new Error("Unexpected value token: " + value.type);
       }
 
-      console.log(column, op, value)
       orConditions.push({
         column: column.value,
         op: op.value,
