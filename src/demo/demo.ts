@@ -8,7 +8,7 @@ const runQuerySettings: runQuerySettingsInterface = {
 };
 
 const generatedCode: flexQLResultInterface | null = flexQl.generate(
-  `rating>4.5,rating<=5;views>0;comments>=100,test_bool==true`,
+  `rating>4.5,rating<=5;views>0;comments>=100,test_bool==true;username==heja`,
   runQuerySettings,
 );
 
