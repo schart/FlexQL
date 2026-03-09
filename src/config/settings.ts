@@ -1,9 +1,7 @@
-import {
-  separatorRecord,
-  DefaultSeparators,
-  Separators,
-} from "@/shared/constants";
+import { separatorRecord, DefaultSeparators, Separators } from "@/shared/constants";
 import { runQuerySettingsInterface } from "@/shared/interfaces/interface.adapter";
+
+ 
 
 export class Settings {
   load() {

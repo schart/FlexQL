@@ -1,5 +1,5 @@
-import { FlexQL } from "./flexql";
-import { flexQLResultInterface, runQuerySettingsInterface } from "./structures";
+import { FlexQL } from "../api";
+import { runQuerySettingsInterface, flexQLResultInterface } from "../shared/interfaces/interface.adapter";
 
 const flexQl = new FlexQL();
 const runQuerySettings: runQuerySettingsInterface = {
@@ -9,7 +9,7 @@ const runQuerySettings: runQuerySettingsInterface = {
 
 const generatedCode: flexQLResultInterface | null = flexQl.generate(
   `rating>4.5,rating<=5;views>0;comments>=100,test_bool==true`,
-  runQuerySettings
+  runQuerySettings,
 );
 
 console.log(generatedCode);
