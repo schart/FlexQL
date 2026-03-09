@@ -5,11 +5,11 @@ export interface separatorSettingsInterface {
 }
 
 export interface runQuerySettingsInterface extends separatorSettingsInterface {
-  adapter?: adapterType | "raw-sql";
+  adapter?: adapterType | "sql";
 }
 
 // Adapters' return structures
 export interface flexQLResultInterface<T = any> {
   type: adapterType;
-  payload: T;
+  payload: T | null;
 }

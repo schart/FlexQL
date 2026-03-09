@@ -3,13 +3,13 @@ import { flexQLResultInterface, runQuerySettingsInterface } from "./structures";
 
 const flexQl = new FlexQL();
 const runQuerySettings: runQuerySettingsInterface = {
-  separators: { and: "&", or: "|" },
-  adapter: "raw-sql",
+  separators: { and: ";", or: "," },
+  adapter: "sql",
 };
 
 const generatedCode: flexQLResultInterface | null = flexQl.generate(
-  "CategoryName==Beverages&age>10",
+  `rating>4.5,rating<=5;views>0;comments>=100,test_bool==true`,
   runQuerySettings
 );
 
-console.log("Output of flexQl", generatedCode);
+console.log(generatedCode);

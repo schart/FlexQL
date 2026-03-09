@@ -1,21 +1,32 @@
-import { Operators, Separators, tokenInterface, TokenType } from "@/structures";
 import { LEXER_ERROR } from "@/structures/constants/constant.error";
+import { Operators, Separators, tokenInterface, TokenType } from "@/structures";
+import { isBooleanObject } from "util/types";
 
 export class Lexer {
-  public main(): tokenInterface[] {
-    this.core();
+  private pos: number = 0;
+  private currentChar: string;
+  private readonly data: string;
+  private tokens: tokenInterface[] = [];
 
-    return this.tokens;
+  constructor(data: string) {
+    this.data = data;
+    this.currentChar = this.data[this.pos];
   }
 
-  private core() {
+  public tokenizer(): tokenInterface[] {
+    return this.core();
+  }
+
+  private core(): tokenInterface[] {
     if (this.data.length <= 0) {
-      this.tokens.push(this.generateToken(TokenType.EOF, "EOF"));
+      this.tokens.push(
+        this.generateToken({ type: TokenType.EOF, value: "EOF" })
+      );
       return this.tokens;
     }
 
     while (this.pos < this.data.length) {
-      this.processWhiteSpace();
+      this.forwardWhiteSpace();
 
       if (Operators.includes(this.currentChar)) {
         this.processOperators();
@@ -31,24 +42,21 @@ export class Lexer {
         }
 
         this.tokens.push(
-          this.generateToken(TokenType.SEPARATOR, this.currentChar)
+          this.generateToken({
+            type: TokenType.SEPARATOR,
+            value: this.currentChar.trim(),
+          })
         );
       }
 
       this.forwardNextToken();
     }
 
-    this.tokens.push(this.generateToken(TokenType.EOF, "EOF"));
+    this.tokens.push(this.generateToken({ type: TokenType.EOF, value: "EOF" }));
+    return this.tokens;
   }
 
-  private forwardNextToken() {
-    if (this.pos < this.data.length) {
-      this.pos++;
-      this.currentChar = this.data[this.pos];
-    }
-  }
-
-  private processOperators() {
+  private processOperators(): void {
     this.processIdentifier();
 
     let OP = this.currentChar;
@@ -61,11 +69,14 @@ export class Lexer {
       throw new Error("Unexcepted Token " + this.currentChar);
     }
 
-    this.tokens.push(this.generateToken(TokenType.OPERATOR, OP));
-    this.processValue();
+    this.tokens.push(
+      this.generateToken({ type: TokenType.OPERATOR, value: OP.trim() })
+    );
+
+    this.processLiteral();
   }
 
-  private processIdentifier() {
+  private processIdentifier(): void {
     let identifier: string = "";
     let virtualPos: number = this.pos - 1;
 
@@ -79,54 +90,64 @@ export class Lexer {
       throw new Error(LEXER_ERROR.IDENTIFIER_LEN);
 
     this.tokens.push(
-      this.generateToken(
-        TokenType.COLUMN,
-        identifier.split("").reverse().join("")
-      )
+      this.generateToken({
+        type: TokenType.COLUMN,
+        value: identifier.split("").reverse().join("").trim(),
+      })
     );
+
     identifier = "";
   }
 
-  private processValue() {
-    let value = "";
+  private processLiteral(): void {
+    let value: number | string | boolean = "";
+    let possibleDataType: "NUMBER" | "STRING" | "BOOLEAN" = "NUMBER";
 
     while (
       !Separators.includes(this.currentChar) &&
       this.pos < this.data.length
     ) {
-      value += this.currentChar;
+      value += this.currentChar.trim();
       this.forwardNextToken();
     }
 
-    if (value.trim().length <= 0) throw new Error(LEXER_ERROR.VALUE_LEN);
+    if (isBooleanObject(new Boolean(value)) === true) {
+      possibleDataType = "BOOLEAN";
+    } else {
+      const parseInt: number = Number.parseInt(value);
+      if (!Number.isInteger(parseInt)) {
+        value = parseInt;
+      } else {
+        possibleDataType = "STRING";
+        value = value.replace(/^["']|["']$/g, ""); // Normalize Strings
+      }
+    }
 
-    this.tokens.push(this.generateToken(TokenType.VALUE, value));
+    if (value !== 0 && !value) throw new Error(LEXER_ERROR.VALUE_LEN);
+    this.tokens.push(
+      this.generateToken({ type: TokenType[possibleDataType], value: value })
+    );
+
     value = "";
   }
 
-  private processWhiteSpace() {
+  private forwardWhiteSpace(): void {
     if (this.currentChar == " ") {
       this.forwardNextToken();
     }
   }
 
-  private generateToken(type: string, value: string | number): tokenInterface {
-    const token: tokenInterface = {
-      type: type,
-      value: value,
-    };
-    return token;
+  private forwardNextToken(): void {
+    if (this.pos < this.data.length) {
+      this.pos++;
+      this.currentChar = this.data[this.pos];
+    }
   }
 
-  private readonly data: string;
-  private pos: number;
-  private currentChar: string;
-  private tokens: tokenInterface[];
-
-  constructor(data: string) {
-    this.pos = 0;
-    this.data = data;
-    this.currentChar = this.data[this.pos];
-    this.tokens = [];
+  private generateToken(token: tokenInterface): tokenInterface {
+    return {
+      type: token.type,
+      value: token.value,
+    };
   }
 }

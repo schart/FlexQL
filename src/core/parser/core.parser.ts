@@ -1,102 +1,100 @@
-import { LinkedList } from "@/ast";
+import { Tree } from "@/ast";
+import { TokenType, tokenInterface, separatorRecord } from "@/structures";
 import {
-  TokenType,
-  tokenInterface,
-  separatorRecord,
-  linkedListInterface,
-} from "@/structures";
-import { GENERAL_ERROR } from "@/structures/constants/constant.error";
+  InterfaceConditions,
+  InterfaceLogicalConditions,
+} from "@/structures/interfaces/interface.parser";
 
 export class Parser {
-  public main(): linkedListInterface | null {
-    this.parser();
-    return this.linkedList.peek();
+  private pos: number;
+  public tree = new Tree();
+  private readonly tokens: tokenInterface[];
+
+  constructor(tokens: tokenInterface[]) {
+    this.tokens = tokens;
+    this.pos = 0;
   }
 
-  private peek() {
+  public parse(): InterfaceLogicalConditions | null {
+    this.core();
+    return this.tree.peek();
+  }
+
+  private peek(): tokenInterface {
     return this.tokens[this.pos];
   }
 
-  private consume() {
-    let current: number = 0;
+  private consume(): tokenInterface {
+    let currentPos: number = 0;
     if (this.pos < this.tokens.length) {
-      current = this.pos;
+      currentPos = this.pos;
       this.pos++;
     }
-    return this.tokens[current];
+    return this.tokens[currentPos];
   }
 
-  private parser() {
-    this.parseCondition();
-    let separator: any = "";
+  // Core/key stage of parser
+  private core() {
+    let andConditions: (InterfaceLogicalConditions | InterfaceConditions)[] =
+      [];
+    let orConditions: (InterfaceLogicalConditions | InterfaceConditions)[] = [];
 
-    while (this.pos < this.tokens.length) {
-      if (this.peek().type == TokenType.EOF) return;
-      if (this.peek().type == TokenType.SEPARATOR) {
-        separator = this.peek().value;
-        this.consume();
+    while (this.peek() && this.peek().type !== TokenType.EOF) {
+      let column: tokenInterface = this.consume();
+      let op: tokenInterface = this.consume();
+      let value: tokenInterface = this.consume();
+
+      if (!Object.values(TokenType).includes(column.type)) {
+        throw new Error("Unexpected column token: " + column.type);
       }
 
-      let column: tokenInterface | undefined = this.consume();
-      let op: tokenInterface | undefined = this.consume();
-      let value: tokenInterface | undefined = this.consume();
-
-      if (column.type != TokenType.COLUMN) {
-        throw new Error(GENERAL_ERROR.UNEXCEPTED_TOKEN + " " + column.value);
+      if (!Object.values(TokenType).includes(op.type)) {
+        throw new Error("Unexpected operator token: " + op.type);
       }
 
-      if (op.type != TokenType.OPERATOR) {
-        throw new Error(GENERAL_ERROR.UNEXCEPTED_TOKEN + " " + op.value);
+      if (!Object.values(TokenType).includes(value.type)) {
+        throw new Error("Unexpected value token: " + value.type);
       }
 
-      if (value.type != TokenType.VALUE) {
-        throw new Error(GENERAL_ERROR.UNEXCEPTED_TOKEN + " " + value.value);
-      }
-
-      this.linkedList.insert({
-        logic: separator == separatorRecord?.separators?.and ? "AND" : "OR",
-        comparison: {
-          column: column.value,
-          op: op.value,
-          value: value.value,
-        },
-        next: null,
+      orConditions.push({
+        column: column.value,
+        op: op.value,
+        value: value.value,
       });
+
+      let next: tokenInterface["value"] = this.peek()?.value;
+      if (next == separatorRecord.separators?.and) {
+        this.consume();
+
+        if (orConditions.length === 1) {
+          andConditions.push(orConditions[0]);
+        } else {
+          andConditions.push({ logic: "OR", conditions: [...orConditions] });
+        }
+
+        orConditions = [];
+        continue;
+      }
+
+      if (next === separatorRecord.separators?.or) {
+        this.consume();
+        continue;
+      }
+
+      this.consume();
     }
 
-    this.pos++;
-  }
-
-  private parseCondition() {
-    let column: tokenInterface | undefined = this.consume();
-    let op: tokenInterface | undefined = this.consume();
-    let value: tokenInterface | undefined = this.consume();
-
-    if (column.type != TokenType.COLUMN) {
-      throw new Error(GENERAL_ERROR.UNEXCEPTED_TOKEN + " " + column.value);
+    if (orConditions.length === 1) {
+      andConditions.push(orConditions[0]);
+    } else {
+      andConditions.push({ logic: "OR", conditions: [...orConditions] });
     }
 
-    if (op.type != TokenType.OPERATOR) {
-      throw new Error(GENERAL_ERROR.UNEXCEPTED_TOKEN + " " + op.value);
+    // Build tree
+    if (andConditions.length === 1) {
+      this.tree.insert(andConditions[0] as any);
+    } else {
+      this.tree.insert({ logic: "AND", conditions: andConditions });
     }
-
-    if (value.type != TokenType.VALUE) {
-      throw new Error(GENERAL_ERROR.UNEXCEPTED_TOKEN + " " + value.value);
-    }
-
-    this.linkedList.insert({
-      logic: null,
-      comparison: { column: column.value, op: op.value, value: value.value },
-      next: null,
-    });
-  }
-
-  private pos: number;
-  private readonly tokens: tokenInterface[];
-  public linkedList = new LinkedList();
-
-  constructor(tokens: tokenInterface[]) {
-    this.pos = 0;
-    this.tokens = tokens;
   }
 }

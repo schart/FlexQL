@@ -1,26 +1,32 @@
 {
-  "name": "flexQL",
-  "version": "1.0.0",
-  "description": "",
+  "name": "flexql",
+  "version": "1.1.1",
+  "description": "A lightweight but powerful query language engine",
   "main": "index.js",
-  "scripts": {
-    "start": "ts-node -r tsconfig-paths/register src/main.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
+  "type": "commonjs",
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "scripts": {
+    "start": "ts-node -r tsconfig-paths/register src/demo.ts",
+    "start:dev": "clear && ts-node -r tsconfig-paths/register src/demo.ts",
+    "test": "jest"
+  },
+  "keywords": [],
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.0.15",
     "eslint": "^9.31.0",
+    "jest": "^30.2.0",
     "prettier": "^3.6.2",
+    "ts-jest": "^29.4.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "mongoose": "^9.1.2",
+    "sequelize": "^6.37.7"
   }
 }

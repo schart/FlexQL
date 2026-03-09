@@ -1,1 +1,1 @@
-export * from "@/ast/ast.linkedList";
+export * from "@/ast/tree";

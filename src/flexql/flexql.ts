@@ -3,57 +3,43 @@ import { SQLAdapter } from "@/adapters";
 import { Settings } from "@/settings/settings";
 import {
   tokenInterface,
-  linkedListInterface,
   flexQLResultInterface,
   runQuerySettingsInterface,
 } from "@/structures";
+import { adapterType } from "@/structures/types/type.adapter";
+import { SequelizeAdapter } from "@/adapters/adapter.sequelize";
+import { treeInterface } from "@/structures/interfaces/interface.tree";
 
 export class FlexQL {
-  generate(
+  public generate(
     input: string,
-    settings?: runQuerySettingsInterface | {}
-  ): flexQLResultInterface | null {
-    if (!input) {
-      return null;
-    }
-    // Load settings
+    settings?: runQuerySettingsInterface
+  ): flexQLResultInterface {
     this.preSettings(settings);
 
-    // Lexer/tokenizer
-    const tokens: tokenInterface[] = this.tokenizer(input);
-
-    // Parser
-    const parsed: linkedListInterface | null = this.parse(tokens);
-
+    const tokens: tokenInterface[] | null = new Lexer(input).tokenizer(); // Separate to words
+    const parsed: treeInterface | null = new Parser(tokens).parse(); // Generate an AST
     return this.executeAdapter(parsed, settings);
   }
 
   private executeAdapter(
-    ast: linkedListInterface | null,
+    ast: treeInterface | null,
     { adapter }: Pick<runQuerySettingsInterface, "adapter"> = {}
-  ): flexQLResultInterface | null {
+  ): flexQLResultInterface {
     if (!ast) {
-      return null;
+      return { type: adapter || "sql", payload: null };
     }
 
-    const adapters: Record<string, any> = {
-      "raw-sql": new SQLAdapter(ast).execute(),
+    const adapters: Record<adapterType, flexQLResultInterface<any>> = {
+      sql: new SQLAdapter(ast).execute(),
+      sequelize: new SequelizeAdapter(ast).generate(),
     };
 
-    return adapters[adapter || "raw-sql"];
+    return adapters[adapter || "sql"];
   }
 
   private preSettings(settings?: runQuerySettingsInterface | {}) {
     const setting = new Settings(settings);
     setting.load();
-  }
-
-  private tokenizer(input: string): tokenInterface[] {
-    return new Lexer(input).main();
-  }
-
-  private parse(tokens: tokenInterface[]): linkedListInterface | null {
-    const parser: Parser = new Parser(tokens);
-    return parser.main() || null;
   }
 }
