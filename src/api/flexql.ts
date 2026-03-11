@@ -32,8 +32,8 @@ export class FlexQL {
     }
 
     // AST flatter
-    const flattedAst = new AstFlatter(ast).main();
- 
+    const flattedAst: flattedAst[] = new AstFlatter(ast).main();
+
     const adapters: Record<adapterType, flexQLResultInterface<any>> = {
       sql: new SQLAdapter(flattedAst).generate(),
       sequelize: new SequelizeAdapter(ast).generate(),
