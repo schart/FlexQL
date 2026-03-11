@@ -11,7 +11,7 @@ const runQuerySettings: runQuerySettingsInterface = {
 };
 
 const generatedCode: flexQLResultInterface | null = flexQl.generate(
-  `age>=21;country==USA,country==Canada,premium_user==true;score>50,status==active`,
+  ` `,
   runQuerySettings,
 );
 

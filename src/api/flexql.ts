@@ -20,22 +20,20 @@ export class FlexQL {
 
     const tokens: tokenInterface[] | null = new Lexer(input).tokenizer(); // Separate to words
     const parsed: treeInterface | null = new Parser(tokens).parse(); // Generate an AST
-    return this.executeAdapter(parsed, settings);
+    if (!parsed) return { type: "sql", payload: null };
+    const flattedAst = new AstFlatter(parsed).main();
+
+    return this.executeAdapter(flattedAst, settings);
   }
 
   private executeAdapter(
-    ast: treeInterface | null,
+    ast: flattedAst[],
     { adapter }: Pick<runQuerySettingsInterface, "adapter"> = {},
   ): flexQLResultInterface {
-    if (!ast) {
-      return { type: adapter || "sql", payload: null };
-    }
-
     // AST flatter
-    const flattedAst = new AstFlatter(ast).main();
- 
+
     const adapters: Record<adapterType, flexQLResultInterface<any>> = {
-      sql: new SQLAdapter(flattedAst).generate(),
+      sql: new SQLAdapter(ast).generate(),
       sequelize: new SequelizeAdapter(ast).generate(),
     };
 

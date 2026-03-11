@@ -2,17 +2,19 @@ import { treeInterface } from "@/shared/interfaces/interface.tree";
 import { InterfaceConditions } from "@/shared/interfaces/interface.parser";
 import { SEQUZELIZE_OPERATORS } from "@/shared/constants/constant.sequelize";
 import { flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
+import { flattedAst } from "@/core/core.flatter";
+import { BaseAstAdapter } from "./base.adapter";
 
- 
-export class SequelizeAdapter {
-  private whConditions: Record<any, any> = {};
-  private readonly ast: treeInterface | any;
+export class SequelizeAdapter extends BaseAstAdapter {
+  // private whConditions: Record<any, any> = {};
+  protected readonly ast: flattedAst[];
 
-  constructor(ast: treeInterface) {
+  constructor(ast: flattedAst[]) {
+    super({});
     this.ast = ast;
   }
 
-  generate(): flexQLResultInterface {
+  execute(): flexQLResultInterface {
     const ast: any = this.ast;
     const conditions = ast.conditions;
 
@@ -39,7 +41,7 @@ export class SequelizeAdapter {
         if (conditions[i].logic) {
           conditions[i].conditions
             .filter(
-              (c: InterfaceConditions) => c.column && c.value !== undefined
+              (c: InterfaceConditions) => c.column && c.value !== undefined,
             )
             .forEach((c: InterfaceConditions) => {
               orCond.push({
