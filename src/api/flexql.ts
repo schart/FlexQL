@@ -5,13 +5,16 @@ import { SQLAdapter } from "@/infrastructure/adapter.sql";
 import { treeInterface } from "@/shared/interfaces/interface.tree";
 import { tokenInterface } from "@/shared/interfaces/interface.lexer";
 import { SequelizeAdapter } from "@/infrastructure/adapter.sequelize";
-import { runQuerySettingsInterface, flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
+import {
+  runQuerySettingsInterface,
+  flexQLResultInterface,
+} from "@/shared/interfaces/interface.adapter";
+import { AstFlatter, flattedAst } from "@/core/core.flatter";
 
- 
 export class FlexQL {
   public generate(
     input: string,
-    settings?: runQuerySettingsInterface
+    settings?: runQuerySettingsInterface,
   ): flexQLResultInterface {
     this.preSettings(settings);
 
@@ -22,14 +25,17 @@ export class FlexQL {
 
   private executeAdapter(
     ast: treeInterface | null,
-    { adapter }: Pick<runQuerySettingsInterface, "adapter"> = {}
+    { adapter }: Pick<runQuerySettingsInterface, "adapter"> = {},
   ): flexQLResultInterface {
     if (!ast) {
       return { type: adapter || "sql", payload: null };
     }
 
+    // AST flatter
+    const flattedAst = new AstFlatter(ast).main();
+ 
     const adapters: Record<adapterType, flexQLResultInterface<any>> = {
-      sql: new SQLAdapter(ast).execute(),
+      sql: new SQLAdapter(flattedAst).generate(),
       sequelize: new SequelizeAdapter(ast).generate(),
     };
 

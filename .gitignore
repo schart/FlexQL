@@ -5,6 +5,7 @@ node_modules/
 dist/
 build/
 docs/CHECK_LIST.md
+docs/earnings.md
 tests/flexql-test
 
 # Logs
