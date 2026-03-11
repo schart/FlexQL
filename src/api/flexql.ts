@@ -35,7 +35,6 @@ export class FlexQL {
       sql: new SQLAdapter(ast).generate(),
       sequelize: new SequelizeAdapter(ast).generate(),
     };
-    
 
     return adapters[adapter || "sql"];
   }
