@@ -11,7 +11,7 @@ const runQuerySettings: runQuerySettingsInterface = {
 };
 
 const generatedCode: flexQLResultInterface | null = flexQl.generate(
-  ` `,
+  `age>=30;username==heja,username==admin,country==NL;score>80,rank>=10;active==true,verified==true`,
   runQuerySettings,
 );
 
