@@ -7,11 +7,11 @@ import {
 const flexQl = new FlexQL();
 const runQuerySettings: runQuerySettingsInterface = {
   separators: { and: ";", or: "," },
-  adapter: "sql",
+  adapter: "sequelize",
 };
 
 const generatedCode: flexQLResultInterface | null = flexQl.generate(
-  `age>=21;country==USA,country==Canada,premium_user==true;score>50,status==active`,
+  ` `,
   runQuerySettings,
 );
 
