@@ -1,5 +1,16 @@
 import { treeInterface } from "@/shared/interfaces/interface.tree";
 
+export interface flattedAst {
+  type?: string;
+  node?: treeInterface;
+  parentLogic?: string;
+  startGroup?: boolean;
+  endGroup?: boolean;
+  column?: string;
+  op?: string;
+  value?: any;
+}
+
 export class AstFlatter {
   // {
   //   logic: 'AND',
@@ -36,17 +47,22 @@ export class AstFlatter {
   //   { groupEnd: true },
   // ];
 
-  main() {
+  main(): flattedAst[] {
     let stack: any[] = [
-      { type: "node", node: this.ast, parentLogic: null, startGroup: true },
+      {
+        type: "node",
+        node: this.ast,
+        parentLogic: String(this.ast.logic),
+        startGroup: true,
+      },
     ];
-    let result: any[] = [];
+    let result: flattedAst[] = [];
 
     while (stack.length > 0) {
       const item = stack.pop();
 
       // If type is "end" add ")" to result
-      if (item.type == "end") {
+      if (item?.type == "end") {
         result.push({
           endGroup: true,
         });
@@ -58,6 +74,7 @@ export class AstFlatter {
         if (node.conditions) {
           result.push({
             startGroup: true,
+            parentLogic: node.logic,
           });
 
           stack.push({
@@ -70,17 +87,16 @@ export class AstFlatter {
               stack.push({
                 type: "node",
                 node: node.conditions[i],
-                parentLogic: node.logic,
               });
             }
           }
         } else {
           // Add leaf
           result.push({
+            type: "leaf",
             column: node.column,
             op: node.op,
             value: node.value,
-            logic: item.parentLogic,
           });
         }
       }

@@ -9,7 +9,7 @@ import {
   runQuerySettingsInterface,
   flexQLResultInterface,
 } from "@/shared/interfaces/interface.adapter";
-import { AstFlatter } from "@/core/core.flatter";
+import { AstFlatter, flattedAst } from "@/core/core.flatter";
 
 export class FlexQL {
   public generate(
@@ -33,10 +33,9 @@ export class FlexQL {
 
     // AST flatter
     const flattedAst = new AstFlatter(ast).main();
-    console.log("flatted ast: ", flattedAst);
-
+ 
     const adapters: Record<adapterType, flexQLResultInterface<any>> = {
-      sql: new SQLAdapter(ast).execute(),
+      sql: new SQLAdapter(flattedAst).generate(),
       sequelize: new SequelizeAdapter(ast).generate(),
     };
 
