@@ -1,7 +1,6 @@
 import { treeInterface } from "@/shared/interfaces/interface.tree";
 import { flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
 import { BaseAstAdapter } from "./base.adapter";
- 
 
 export class SQLAdapter extends BaseAstAdapter {
   protected readonly ast: treeInterface | any;
@@ -13,9 +12,8 @@ export class SQLAdapter extends BaseAstAdapter {
 
   generate(): flexQLResultInterface {
     let logic: string[] = [];
-    let result: any[] = [];
+    let result: string[] = [];
     let values: any[] = [];
-    console.log(this.ast);
 
     this.ast.forEach((element: any, index: number = 0) => {
       index++;

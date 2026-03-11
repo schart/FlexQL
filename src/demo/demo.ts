@@ -7,7 +7,7 @@ import {
 const flexQl = new FlexQL();
 const runQuerySettings: runQuerySettingsInterface = {
   separators: { and: ";", or: "," },
-  adapter: "sql",
+  adapter: "sequelize",
 };
 
 const generatedCode: flexQLResultInterface | null = flexQl.generate(

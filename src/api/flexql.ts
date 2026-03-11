@@ -21,6 +21,7 @@ export class FlexQL {
     const tokens: tokenInterface[] | null = new Lexer(input).tokenizer(); // Separate to words
     const parsed: treeInterface | null = new Parser(tokens).parse(); // Generate an AST
     if (!parsed) return { type: "sql", payload: null };
+
     const flattedAst = new AstFlatter(parsed).main();
 
     return this.executeAdapter(flattedAst, settings);
@@ -30,12 +31,11 @@ export class FlexQL {
     ast: flattedAst[],
     { adapter }: Pick<runQuerySettingsInterface, "adapter"> = {},
   ): flexQLResultInterface {
-    // AST flatter
-
     const adapters: Record<adapterType, flexQLResultInterface<any>> = {
       sql: new SQLAdapter(ast).generate(),
       sequelize: new SequelizeAdapter(ast).generate(),
     };
+    
 
     return adapters[adapter || "sql"];
   }
