@@ -58,6 +58,4 @@ export class SQLAdapter extends BaseAstAdapter {
       },
     };
   }
-
- 
 }
