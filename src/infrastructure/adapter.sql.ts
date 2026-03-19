@@ -1,6 +1,6 @@
+import { BaseAstAdapter } from "./base.adapter";
 import { treeInterface } from "@/shared/interfaces/interface.tree";
 import { flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
-import { BaseAstAdapter } from "./base.adapter";
 
 export class SQLAdapter extends BaseAstAdapter {
   protected readonly ast: treeInterface | any;

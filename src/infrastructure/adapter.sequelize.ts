@@ -1,8 +1,7 @@
+import { BaseAstAdapter } from "./base.adapter";
+import { flattedAst } from "@/core/core.flatter";
 import { SEQUZELIZE_OPERATORS } from "@/shared/constants/constant.sequelize";
 import { flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
-import { AstFlatter, flattedAst } from "@/core/core.flatter";
-import { BaseAstAdapter } from "./base.adapter";
-import { where } from "sequelize";
 
 export class SequelizeAdapter extends BaseAstAdapter {
   protected readonly ast: flattedAst[];

@@ -12,7 +12,7 @@ import {
 import { AstFlatter, flattedAst } from "@/core/core.flatter";
 
 export class FlexQL {
-  public generate(
+  public parse(
     input: string,
     settings?: runQuerySettingsInterface,
   ): flexQLResultInterface {

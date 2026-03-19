@@ -10,7 +10,7 @@ const runQuerySettings: runQuerySettingsInterface = {
   adapter: "sequelize",
 };
 
-const generatedCode: flexQLResultInterface | null = flexQl.generate(
+const generatedCode: flexQLResultInterface | null = flexQl.parse(
   `age>=30;username==heja,username==admin,country==NL;score>80,rank>=10;active==true,verified==true`,
   runQuerySettings,
 );
