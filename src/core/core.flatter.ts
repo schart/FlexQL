@@ -106,7 +106,6 @@ export class AstFlatter {
   }
 
   protected readonly ast: treeInterface;
-
   constructor(ast: treeInterface) {
     this.ast = ast;
   }

@@ -18,12 +18,14 @@ export class FlexQL {
   ): flexQLResultInterface {
     this.preSettings(settings);
 
-    const tokens: tokenInterface[] | null = new Lexer(input).tokenizer(); // Separate to words
-    const parsed: treeInterface | null = new Parser(tokens).parse(); // Generate an AST
-    if (!parsed) return { type: "sql", payload: null };
+    // Tokenize
+    const tokens: tokenInterface[] | null = new Lexer(input).tokenizer();
+
+    // Generate an AST
+    const parsed: treeInterface | null = new Parser(tokens).parse();
+    if (!parsed) return { type: "sql", payload: { conditions: null } };
 
     const flattedAst = new AstFlatter(parsed).main();
-
     return this.executeAdapter(flattedAst, settings);
   }
 
