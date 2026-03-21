@@ -1,9 +1,10 @@
----
 # 🧩 FlexQL
 A lightweight **query language engine** for building filters **without writing complex SQL or ORM queries**.
+
 <p align="center">
 <img src="docs/Flexql-architecture.png" width="650"/>
 </p>
+
 ---
 
 # 🚀 Overview
@@ -12,7 +13,7 @@ A lightweight **query language engine** for building filters **without writing c
 Instead of manually building queries, you can write:
 
 ```
-username=="heja";age>18,status=="active"
+username==heja;age>18,status==active
 ```
 
 Which means:
@@ -30,6 +31,7 @@ Which means:
 - 🧠 **Readable syntax** — intuitive query format
 - 🔀 **Flexible separators** — `;` = AND, `,` = OR
 - 🔒 **Safe** — parameterized output to prevent SQL injection
+- 🛡️ **Column protection** — restrict or block access to sensitive columns
 - ⚙️ **Adapter-based** — SQL, Sequelize, MongoDB (coming), Elasticsearch (coming)
 - 🧱 **Lexer → Parser → Adapter** — modular and extensible
 - 🧪 **Type-validated** — automatically checks numbers, strings, booleans
@@ -56,7 +58,7 @@ Query String
 ### Query
 
 ```
-username=="heja";age>18,status=="active"
+username==heja;age>18,status==active
 ```
 
 ### Generated AST (simplified)
@@ -88,7 +90,7 @@ username=="heja";age>18,status=="active"
 ### Basic filter — single AND chain
 
 ```
-username=="heja";age>18;country=="NL"
+username==heja;age>18;country==NL
 ```
 
 ```js
@@ -107,7 +109,7 @@ username=="heja";age>18;country=="NL"
 import { FlexQL } from "flexql";
 import db from "./db"; // your database connection
 
-const result = FlexQL.parse('username=="heja";age>18;country=="NL"', {
+const result = FlexQL.parse('username==heja;age>18;country==NL', {
   adapter: "sql",
 });
 
@@ -122,7 +124,7 @@ const rows = await db.query(
 ### Mixed AND/OR — user search with fallback
 
 ```
-username=="heja";age>18,status=="active"
+username==heja;age>18,status==active
 ```
 
 ```js
@@ -138,7 +140,7 @@ username=="heja";age>18,status=="active"
 **Usage:**
 
 ```ts
-const result = FlexQL.parse('username=="heja";age>18,status=="active"', {
+const result = FlexQL.parse('username==heja;age>18,status==active', {
   adapter: "sql",
 });
 
@@ -153,7 +155,7 @@ const users = await db.query(
 ### Date range filter
 
 ```
-created_at>="2025-01-01";created_at<="2025-12-31";active==true
+created_at>=2025-01-01;created_at<=2025-12-31;active==true
 ```
 
 ```js
@@ -170,7 +172,7 @@ created_at>="2025-01-01";created_at<="2025-12-31";active==true
 
 ```ts
 const result = FlexQL.parse(
-  'created_at>="2025-01-01";created_at<="2025-12-31";active==true',
+  'created_at>=2025-01-01;created_at<=2025-12-31;active==true',
   { adapter: "sql" },
 );
 
@@ -189,7 +191,7 @@ const logs = await db.query(
 ### Multi-country OR filter
 
 ```
-username=="heja",country=="NL";score>90,rank>=5;active==true,verified==true
+username==heja,country==NL;score>90,rank>=5;active==true,verified==true
 ```
 
 ```js
@@ -229,7 +231,7 @@ import { FlexQL } from "flexql";
 import { User } from "./models";
 
 const result = FlexQL.parse(
-  'username=="heja",country=="NL";score>90,rank>=5;active==true,verified==true',
+  'username==heja,country==NL;score>90,rank>=5;active==true,verified==true',
   { adapter: "sequelize" },
 );
 
@@ -243,7 +245,7 @@ const users = await User.findAll({
 ### Admin dashboard — dynamic filter from query params
 
 ```
-role=="admin",role=="moderator";banned==false;last_login>="2025-06-01"
+role==admin,role==moderator;banned==false;last_login>=2025-06-01
 ```
 
 ```js
@@ -269,7 +271,7 @@ role=="admin",role=="moderator";banned==false;last_login>="2025-06-01"
 **Usage:**
 
 ```ts
-// req.query.filter = 'role=="admin",role=="moderator";banned==false;last_login>="2025-06-01"'
+// req.query.filter = 'role==admin,role==moderator;banned==false;last_login>=2025-06-01'
 const result = FlexQL.parse(req.query.filter, { adapter: "sequelize" });
 
 const admins = await User.findAll({
@@ -283,7 +285,7 @@ const admins = await User.findAll({
 ### Paginated product listing
 
 ```
-category=="electronics";price>=100;price<=999;in_stock==true
+category==electronics;price>=100;price<=999;in_stock==true
 ```
 
 ```js
@@ -306,7 +308,7 @@ category=="electronics";price>=100;price<=999;in_stock==true
 
 ```ts
 const result = FlexQL.parse(
-  'category=="electronics";price>=100;price<=999;in_stock==true',
+  'category==electronics;price>=100;price<=999;in_stock==true',
   { adapter: "sequelize" },
 );
 
@@ -319,6 +321,94 @@ const products = await Product.findAndCountAll({
 
 ---
 
+# 🛡️ Column Protection
+
+FlexQL lets you restrict which columns can be queried and which operators are allowed per column. This is useful for preventing access to sensitive fields and enforcing query rules on the server side.
+
+## Options
+
+| Option    | Type                              | Description                                      |
+| --------- | --------------------------------- | ------------------------------------------------ |
+| `exclude` | `string[]`                        | Columns that cannot be queried at all            |
+| `rules`   | `{ [column: string]: Operator[] }` | Allowed operators per column                     |
+
+### Exclude — block sensitive columns
+
+Prevent querying sensitive columns like `password`, `token`, or `secret`:
+
+```ts
+const result = FlexQL.parse('username==heja;password==1234', {
+  adapter: "sql",
+  columnProtect: {
+    exclude: ["password", "token"],
+  },
+});
+// ❌ Throws: "Access to protected column is not allowed."
+```
+
+### Rules — restrict operators per column
+
+Allow only specific operators for a column. For example, `email` should only support exact match, while `age` should only support comparison operators:
+
+```ts
+const result = FlexQL.parse('age>=30;username==heja', {
+  adapter: "sql",
+  columnProtect: {
+    rules: {
+      age: [">", "<", "<=", ">="],
+      email: ["=="],
+    },
+  },
+});
+```
+
+If a disallowed operator is used:
+
+```ts
+FlexQL.parse('email>a', {
+  adapter: "sql",
+  columnProtect: {
+    rules: {
+      email: ["=="],
+    },
+  },
+});
+// ❌ Throws: "Operator '>' is not allowed for column 'email'. Allowed: =="
+```
+
+### Combining exclude and rules
+
+```ts
+const flexQl = new FlexQL();
+
+const result = flexQl.parse(
+  'age>=30;username==heja,username==admin,country==NL;score>80,rank>=10;active==true,verified==true',
+  {
+    separators: { and: ";", or: "," },
+    adapter: "sql",
+    columnProtect: {
+      exclude: ["password"],
+      rules: {
+        age: [">", "<", "<=", ">="],
+      },
+    },
+  },
+);
+```
+
+## Supported Operators
+
+| Operator | Description           |
+| -------- | --------------------- |
+| `==`     | Equal                 |
+| `!=`     | Not equal             |
+| `>`      | Greater than          |
+| `<`      | Less than             |
+| `>=`     | Greater than or equal |
+| `<=`     | Less than or equal    |
+
+---
+
 # 🔤 Syntax Reference
 
 | Element        | Description        | Examples                         |
@@ -326,7 +416,7 @@ const products = await Product.findAndCountAll({
 | **Identifier** | Column / field     | `username`, `age`                |
 | **Operator**   | Comparison         | `==`, `!=`, `>`, `<`, `>=`, `<=` |
 | **Logic**      | Combine conditions | `;` = AND, `,` = OR              |
-| **Value**      | Match value        | `"heja"`, `18`, `true`           |
+| **Value**      | Match value        | `heja`, `18`, `true`           |
 
 ---
 
@@ -335,17 +425,17 @@ const products = await Product.findAndCountAll({
 ### Basic
 
 ```
-username=="test";age>10
+username==test;age>10
 ```
 
 ```
-username=="test",status==false
+username==test,status==false
 ```
 
 ### Medium
 
 ```
-age>=18;(country=="TR",country=="DE");premium_user==true
+age>=18;(country==TR,country==DE);premium_user==true
 ```
 
 ```
@@ -355,7 +445,7 @@ score>50,rank>=3;active==true,verified==true
 ### Complex
 
 ```
-username=="heja",country=="NL";score>90,rank>=5;active==true,verified==true;created_at>="2025-01-01";updated_at<="2025-10-01",last_login>="2025-09-01"
+username==heja,country==NL;score>90,rank>=5;active==true,verified==true;created_at>=2025-01-01;updated_at<=2025-10-01,last_login>=2025-09-01
 ```
 
 ---
@@ -370,7 +460,7 @@ npm install flexql
 
 ```ts
 import { FlexQL } from "flexql";
-const query = 'username=="heja";age>18;country=="NL"';
+const query = 'username==heja;age>18;country==NL';
 const result = FlexQL.parse(query, { adapter: "sequelize" });
 console.log(result.payload.conditions);
 ```
@@ -383,6 +473,7 @@ console.log(result.payload.conditions);
 - 🧱 **Works across multiple databases**
 - 🧠 **Logical precedence support** — AND > OR
 - 🔒 **Safe parameterized output**
+- 🛡️ **Column-level access control** — exclude or restrict operators per column
 - 🌍 **Portable architecture** via adapters
 - 🧩 **Modular & extensible**
 
@@ -394,6 +485,7 @@ console.log(result.payload.conditions);
 - API query parameter parsing
 - ORM-independent rule engines
 - Safe filtering for user input
+- Multi-tenant apps with column-level access control
 
 ---
 
@@ -401,6 +493,7 @@ console.log(result.payload.conditions);
 
 - [x] SQL adapter
 - [x] Sequelize adapter
+- [x] Column protection (exclude + operator rules)
 - [ ] MongoDB adapter
 - [ ] Elasticsearch adapter
 - [ ] Nested query support
