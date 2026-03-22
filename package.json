@@ -26,6 +26,11 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@ai-sdk/groq": "^3.0.31",
+    "@ai-sdk/openai": "^3.0.47",
+    "@nestjs/config": "^4.0.3",
+    "ai": "^6.0.134",
+    "dotenv": "^17.3.1",
     "lodash": "^4.17.21",
     "mongoose": "^9.1.2",
     "pg": "^8.20.0",

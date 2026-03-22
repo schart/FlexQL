@@ -7,6 +7,7 @@ build/
 docs/CHECK_LIST.md
 docs/earnings.md
 tests/flexql-test
+src/examples/
 
 # Logs
 npm-debug.log*

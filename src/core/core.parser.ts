@@ -1,4 +1,4 @@
-import { separatorRecord } from "@/shared/constants";
+import { LEXER_ERROR, PARSER_ERROR, separatorRecord } from "@/shared/constants";
 import { TokenType } from "@/shared/enums/enum.lexer";
 import { tokenInterface } from "@/shared/interfaces/interface.lexer";
 import {
@@ -6,17 +6,12 @@ import {
   InterfaceConditions,
 } from "@/shared/interfaces/interface.parser";
 import { Tree } from "./core.tree";
+import {
+  flexQLResultInterface,
+  runQuerySettingsInterface,
+} from "@/shared/interfaces/interface.adapter";
 
 export class Parser {
-  private pos: number;
-  public tree = new Tree();
-  private readonly tokens: tokenInterface[];
-
-  constructor(tokens: tokenInterface[]) {
-    this.tokens = tokens;
-    this.pos = 0;
-  }
-
   public parse(): InterfaceLogicalConditions | null {
     this.core();
     return this.tree.peek();
@@ -47,16 +42,30 @@ export class Parser {
       let value: tokenInterface = this.consume();
 
       if (!Object.values(TokenType).includes(column.type)) {
-        throw new Error("Unexpected column token: " + column.type);
+        throw new Error(PARSER_ERROR.UNEXPECTED_COLUMN(column.type));
       }
-
       if (!Object.values(TokenType).includes(op.type)) {
-        throw new Error("Unexpected operator token: " + op.type);
+        throw new Error(PARSER_ERROR.UNEXPECTED_OPERATOR(op.type));
+      }
+      if (!Object.values(TokenType).includes(value.type)) {
+        throw new Error(PARSER_ERROR.UNEXPECTED_VALUE(value.type));
       }
 
-      if (!Object.values(TokenType).includes(value.type)) {
-        throw new Error("Unexpected value token: " + value.type);
+      // RULE MAP
+      const ruleMap = this.settings?.columnProtect?.rules;
+      if (ruleMap) {
+        const allowedOps = ruleMap[column.value];
+        if (allowedOps && !allowedOps.includes(String(op.value))) {
+          throw new Error(
+            LEXER_ERROR.RULE_VIOLATION(
+              String(column.value),
+              String(op.value),
+              allowedOps,
+            ),
+          );
+        }
       }
+      // RULE MAP
 
       orConditions.push({
         column: column.value,
@@ -98,5 +107,16 @@ export class Parser {
     } else {
       this.tree.insert({ logic: "AND", conditions: andConditions });
     }
+  }
+
+  private pos: number;
+  public tree = new Tree();
+  private readonly tokens: tokenInterface[];
+  private readonly settings?: runQuerySettingsInterface;
+
+  constructor(tokens: tokenInterface[], settings?: runQuerySettingsInterface) {
+    this.settings = settings;
+    this.tokens = tokens;
+    this.pos = 0;
   }
 }

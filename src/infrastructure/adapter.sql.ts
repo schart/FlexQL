@@ -3,13 +3,6 @@ import { treeInterface } from "@/shared/interfaces/interface.tree";
 import { flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
 
 export class SQLAdapter extends BaseAstAdapter {
-  protected readonly ast: treeInterface | any;
-
-  constructor(ast: any) {
-    super({});
-    this.ast = ast;
-  }
-
   generate(): flexQLResultInterface {
     let logic: string[] = [];
     let result: string[] = [];
@@ -57,5 +50,12 @@ export class SQLAdapter extends BaseAstAdapter {
         values,
       },
     };
+  }
+
+  protected readonly ast: treeInterface | any;
+
+  constructor(ast: any) {
+    super({});
+    this.ast = ast;
   }
 }
