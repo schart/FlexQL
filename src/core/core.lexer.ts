@@ -1,19 +1,9 @@
 import { Operators, Separators, LEXER_ERROR } from "@/shared/constants";
 import { TokenType } from "@/shared/enums/enum.lexer";
+import { runQuerySettingsInterface } from "@/shared/interfaces/interface.adapter";
 import { tokenInterface } from "@/shared/interfaces/interface.lexer";
-import { isBooleanObject } from "util/types";
 
 export class Lexer {
-  private pos: number = 0;
-  private currentChar: string;
-  private readonly data: string;
-  private tokens: tokenInterface[] = [];
-
-  constructor(data: string) {
-    this.data = data;
-    this.currentChar = this.data[this.pos];
-  }
-
   public tokenizer(): tokenInterface[] {
     return this.core();
   }
@@ -90,10 +80,19 @@ export class Lexer {
     if (identifier.trim().length <= 0)
       throw new Error(LEXER_ERROR.IDENTIFIER_LEN);
 
+    const reversedIdentifier: string = identifier
+      .split("")
+      .reverse()
+      .join("")
+      .trim();
+
+    if (this.settings?.columnProtect?.exclude?.includes(reversedIdentifier))
+      throw new Error(LEXER_ERROR.PROTECTED_COLUMN_ACCESS);
+
     this.tokens.push(
       this.generateToken({
         type: TokenType.COLUMN,
-        value: identifier.split("").reverse().join("").trim(),
+        value: reversedIdentifier,
       }),
     );
 
@@ -111,7 +110,6 @@ export class Lexer {
       value += this.currentChar.trim();
       this.forwardNextToken();
     }
-
 
     if (value == "true" || value == "false") {
       possibleDataType = "BOOLEAN";
@@ -149,5 +147,17 @@ export class Lexer {
       type: token.type,
       value: token.value,
     };
+  }
+
+  private pos: number = 0;
+  private currentChar: string;
+  private readonly data: string;
+  private tokens: tokenInterface[] = [];
+  private readonly settings?: runQuerySettingsInterface;
+
+  constructor(data: string, settings?: runQuerySettingsInterface) {
+    this.data = data;
+    this.settings = settings;
+    this.currentChar = this.data[this.pos];
   }
 }

@@ -37,7 +37,7 @@ export class AstFlatter {
   //   { groupStart: true, logic: "OR" },
   //   { column: "rating", op: ">", value: 4.5, logic: "OR" },
   //   { column: "rating", op: "<=", value: 5, logic: "OR" },
-  //   { groupEnd: true },
+  //   { groupEnd: true }, 
   //   { column: "views", op: ">", value: 0, logic: "AND" },
   //   { groupStart: true, logic: "OR" },
   //   { column: "comments", op: ">=", value: 100, logic: "OR" },

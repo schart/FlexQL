@@ -4,13 +4,6 @@ import { SEQUZELIZE_OPERATORS } from "@/shared/constants/constant.sequelize";
 import { flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
 
 export class SequelizeAdapter extends BaseAstAdapter {
-  protected readonly ast: flattedAst[];
-
-  constructor(ast: flattedAst[]) {
-    super({});
-    this.ast = ast;
-  }
-
   generate(): flexQLResultInterface {
     let result: any = [];
     let logic: string[] = [];
@@ -58,5 +51,12 @@ export class SequelizeAdapter extends BaseAstAdapter {
       },
       type: "sequelize",
     };
+  }
+
+  protected readonly ast: flattedAst[];
+
+  constructor(ast: flattedAst[]) {
+    super({});
+    this.ast = ast;
   }
 }
