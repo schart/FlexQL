@@ -1,9 +1,8 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 import { streamText } from "ai";
+import { createGroq } from "@ai-sdk/groq";
 import { AI_PROMPTS } from "./ai.prompts";
-import { createGroq, GroqProvider } from "@ai-sdk/groq";
-import { ConfigService } from "@nestjs/config";
 
 export class AIService {
   private query: string;

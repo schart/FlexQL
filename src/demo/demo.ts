@@ -14,14 +14,17 @@ const runQuerySettings: runQuerySettingsInterface = {
     rules: {},
   },
 };
-const input = `age>=30;username==heja,username==admin,country==NL;score>80,rank>=10;active==true,verified==true`;
+
+const input = `age>=30;username==x,email==heja;username==admin;country==NL;score>80,rank>=10;active==true,verified==true`;
 const generatedCode: flexQLResultInterface | null = flexQl.parse(
   input,
   runQuerySettings,
 );
 
-
 // AI parser
 new AIService(input).AIOrchestrator().then((res: any) => {
-  console.log("AI ", JSON.parse(res));
+  // console.log("AI ", JSON.parse(res));
 });
+
+// Normal parser
+console.log("Generated code ", generatedCode);

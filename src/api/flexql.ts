@@ -10,6 +10,7 @@ import {
   flexQLResultInterface,
 } from "@/shared/interfaces/interface.adapter";
 import { AstFlatter, flattedAst } from "@/core/core.flatter";
+import { MongoAdapter } from "@/infrastructure/adapter.mongo";
 
 export class FlexQL {
   public parse(
@@ -40,6 +41,7 @@ export class FlexQL {
     const adapters: Record<adapterType, flexQLResultInterface<any>> = {
       sql: new SQLAdapter(ast).generate(),
       sequelize: new SequelizeAdapter(ast).generate(),
+      mongo: new MongoAdapter(ast).generate(),
     };
 
     return adapters[adapter || "sql"];
