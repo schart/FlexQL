@@ -7,8 +7,10 @@ export const DefaultSeparators: Record<"and" | "or", separatorsType> = {
   or: ",",
 };
 
-const separatorRecord: Pick<runQuerySettingsInterface, "separators"> = {};
-let separatorValues: any = [];
+const separatorRecord: Pick<runQuerySettingsInterface, "separators"> = {
+  separators: DefaultSeparators,
+};
+let separatorValues: string[] = Object.values(DefaultSeparators);
 
 export { separatorValues as Separators, separatorRecord };
 

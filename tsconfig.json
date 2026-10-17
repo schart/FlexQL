@@ -4,6 +4,8 @@
     "module": "CommonJS",
     "strict": true,
     "esModuleInterop": true,
+    "declaration": true,
+    "declarationMap": true,
     "outDir": "dist",
     "rootDir": "src",
     "skipLibCheck": true,

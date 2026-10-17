@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
 
-export const SEQUZELIZE_OPERATORS: Record<any, any> = {
+export const SEQUZELIZE_OPERATORS: Record<string, symbol> = {
   // Logic
   AND: Op.and,
   OR: Op.or,

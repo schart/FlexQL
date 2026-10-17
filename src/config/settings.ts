@@ -16,8 +16,7 @@ export class Settings {
 
     // indef of separator : 0
     // indef of separator: 1
-    Separators.push(Object.values(separatorRecord.separators)[0]);
-    Separators.push(Object.values(separatorRecord.separators)[1]);
+    Separators.splice(0, Separators.length, ...Object.values(separatorRecord.separators));
   }
 
   private readonly settings: runQuerySettingsInterface;

@@ -19,6 +19,20 @@ export class Lexer {
     while (this.pos < this.data.length) {
       this.forwardWhiteSpace();
 
+      if (this.currentChar === "(" || this.currentChar === ")") {
+        this.tokens.push(
+          this.generateToken({
+            type:
+              this.currentChar === "("
+                ? TokenType.OPEN_PAREN
+                : TokenType.CLOSE_PAREN,
+            value: this.currentChar,
+          }),
+        );
+        this.forwardNextToken();
+        continue;
+      }
+
       if (Operators.includes(this.currentChar)) {
         this.processOperators();
       }
@@ -41,6 +55,18 @@ export class Lexer {
       }
 
       this.forwardNextToken();
+    }
+
+    if (this.currentChar === "(" || this.currentChar === ")") {
+      this.tokens.push(
+        this.generateToken({
+          type:
+            this.currentChar === "("
+              ? TokenType.OPEN_PAREN
+              : TokenType.CLOSE_PAREN,
+          value: this.currentChar,
+        }),
+      );
     }
 
     this.tokens.push(this.generateToken({ type: TokenType.EOF, value: "EOF" }));
@@ -71,7 +97,12 @@ export class Lexer {
     let identifier: string = "";
     let virtualPos: number = this.pos - 1;
 
-    while (virtualPos >= 0 && !Separators.includes(this.data[virtualPos])) {
+    while (
+      virtualPos >= 0 &&
+      !Separators.includes(this.data[virtualPos]) &&
+      this.data[virtualPos] !== "(" &&
+      this.data[virtualPos] !== ")"
+    ) {
       const current: string = this.data[virtualPos];
       identifier += current;
       virtualPos--;
@@ -105,6 +136,8 @@ export class Lexer {
 
     while (
       !Separators.includes(this.currentChar) &&
+      this.currentChar !== "(" &&
+      this.currentChar !== ")" &&
       this.pos < this.data.length
     ) {
       value += this.currentChar.trim();
@@ -125,6 +158,13 @@ export class Lexer {
     this.tokens.push(
       this.generateToken({ type: TokenType[possibleDataType], value: value }),
     );
+
+    if (this.currentChar === ")" && this.pos === this.data.length - 1) {
+      this.tokens.push(
+        this.generateToken({ type: TokenType.CLOSE_PAREN, value: ")" }),
+      );
+      this.currentChar = "";
+    }
 
     value = "";
   }

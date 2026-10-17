@@ -1,7 +1,5 @@
-export * from "@/structures/";
-export * from "@/structures/enums/enum.lexer";
-export * from "@/structures/constants/constant.lexer";
-export * from "@/structures/constants/constant.error";
-export * from "@/structures/interfaces/interface.lexer";
-// export * from "@/structures/interfaces/interface.tree";
-export * from "@/structures/interfaces/interface.adapter";
+export * from "@/shared/enums/enum.lexer";
+export * from "@/shared/constants/constant.lexer";
+export * from "@/shared/constants/constant.error";
+export * from "@/shared/interfaces/interface.lexer";
+export * from "@/shared/interfaces/interface.adapter";

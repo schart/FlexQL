@@ -1,22 +1,23 @@
-import { Lexer } from "../src/core/lexer/core.lexer";
+import { Lexer } from "../src/core/core.lexer";
 
 describe("Lexer Tests", () => {
   it("Should lexer String/Number correctly", () => {
     const lexer = new Lexer("A > 5 , b > 2 ; c > 10");
-    const tokens = lexer.main();
+    const tokens = lexer.tokenizer();
 
     expect(tokens).toEqual([
-      { type: "IDENTIFIER", value: "A" },
+      { type: "COLUMN", value: "A" },
       { type: "OPERATOR", value: ">" },
       { type: "NUMBER", value: 5 },
       { type: "SEPARATOR", value: "," },
-      { type: "IDENTIFIER", value: "b" },
+      { type: "COLUMN", value: "b" },
       { type: "OPERATOR", value: ">" },
       { type: "NUMBER", value: 2 },
       { type: "SEPARATOR", value: ";" },
-      { type: "IDENTIFIER", value: "c" },
+      { type: "COLUMN", value: "c" },
       { type: "OPERATOR", value: ">" },
       { type: "NUMBER", value: 10 },
+      { type: "EOF", value: "EOF" },
     ]);
   });
 });

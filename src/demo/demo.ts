@@ -22,7 +22,7 @@ const generatedCode: flexQLResultInterface | null = flexQl.parse(
 );
 
 // AI parser
-new AIService(input).AIOrchestrator().then((res: any) => {
+new AIService(input).AIOrchestrator().then((res: string) => {
   // console.log("AI ", JSON.parse(res));
 });
 

@@ -6,5 +6,7 @@ export enum TokenType {
   BOOLEAN = "BOOLEAN",
   SEPARATOR = "SEPARATOR",
   EOF = "EOF",
+  OPEN_PAREN = "OPEN_PAREN",
+  CLOSE_PAREN = "CLOSE_PAREN",
   VALUE = "VALUE",
 }

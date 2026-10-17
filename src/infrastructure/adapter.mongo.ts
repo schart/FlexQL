@@ -1,53 +1,24 @@
 import { flattedAst } from "@/core/core.flatter";
+import { flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
 import { BaseAstAdapter } from "./base.adapter";
-import { MONGO_OPERATORS } from "@/shared/constants/constant.mongo";
+import { QueryGroup, QueryNode, unflattenAst } from "./adapter.ast";
 
 export class MongoAdapter extends BaseAstAdapter {
-  generate(): any {
-    let result: any = {};
-    let logic: string[] = [];
-    this.ast.forEach((element, index) => {
-      index++;
-      if (element.startGroup === true) {
-        if (element.parentLogic === "OR") {
-          result[MONGO_OPERATORS.OR] = [];
-          logic.push(MONGO_OPERATORS.OR);
-        } else if (element.parentLogic === "AND") {
-          logic.push(MONGO_OPERATORS.AND);
-        }
-      }
-      if (element.type === "leaf") {
-        if (logic[logic.length - 1] === MONGO_OPERATORS.OR) {
-          let or = result[MONGO_OPERATORS.OR];
-
-          if (or) {
-            or.push({
-              [String(element.column)]: { [String(element.op)]: element.value },
-            });
-          }
-        } else {
-          if (!result[MONGO_OPERATORS.AND]) {
-            result[MONGO_OPERATORS.AND] = [];
-          }
-          result[MONGO_OPERATORS.AND].push({
-            [String(element.column)]: { [String(element.op)]: element.value },
-          });
-        }
-      }
-      if (element.endGroup) {
-        logic.pop();
-      }
-    });
-    return {
-      payload: result,
-      type: "mongo",
-    };
+  generate(): flexQLResultInterface<Record<string, unknown>> {
+    return { type: "mongo", payload: { conditions: this.toCondition(unflattenAst(this.ast)) } };
   }
 
-  protected readonly ast: flattedAst[];
-
-  constructor(ast: flattedAst[]) {
-    super({});
-    this.ast = ast;
+  private toCondition(node: QueryNode): Record<string, unknown> {
+    if (this.isGroup(node)) {
+      const operator = node.logic === "AND" ? "$and" : "$or";
+      return { [operator]: node.conditions.map((condition) => this.toCondition(condition)) };
+    }
+    const operators: Record<string, string> = { "==": "$eq", "!=": "$ne", ">": "$gt", "<": "$lt", ">=": "$gte", "<=": "$lte" };
+    if (!operators[node.op]) throw new Error(`Unsupported MongoDB operator: ${node.op}`);
+    return { [node.column]: { [operators[node.op]]: node.value } };
   }
+
+  private isGroup(node: QueryNode): node is QueryGroup { return "conditions" in node; }
+
+  constructor(ast: flattedAst[]) { super(ast); }
 }

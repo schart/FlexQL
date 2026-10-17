@@ -1,4 +1,5 @@
 import { treeInterface } from "@/shared/interfaces/interface.tree";
+import { InterfaceConditions } from "@/shared/interfaces/interface.parser";
 
 export interface flattedAst {
   type?: string;
@@ -8,7 +9,14 @@ export interface flattedAst {
   endGroup?: boolean;
   column?: string;
   op?: string;
-  value?: any;
+  value?: unknown;
+}
+
+interface FlattenStackItem {
+  type: "node" | "end";
+  node?: treeInterface | InterfaceConditions;
+  parentLogic?: string;
+  startGroup?: boolean;
 }
 
 export class AstFlatter {
@@ -48,7 +56,7 @@ export class AstFlatter {
   // ];
 
   main(): flattedAst[] {
-    let stack: any[] = [
+    let stack: FlattenStackItem[] = [
       {
         type: "node",
         node: this.ast,
@@ -60,6 +68,7 @@ export class AstFlatter {
 
     while (stack.length > 0) {
       const item = stack.pop();
+      if (!item) continue;
 
       // If type is "end" add ")" to result
       if (item?.type == "end") {
@@ -71,7 +80,7 @@ export class AstFlatter {
       let node = item.node;
 
       if (node) {
-        if (node.conditions) {
+        if ("conditions" in node) {
           result.push({
             startGroup: true,
             parentLogic: node.logic,

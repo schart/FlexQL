@@ -2,121 +2,110 @@ import { LEXER_ERROR, PARSER_ERROR, separatorRecord } from "@/shared/constants";
 import { TokenType } from "@/shared/enums/enum.lexer";
 import { tokenInterface } from "@/shared/interfaces/interface.lexer";
 import {
-  InterfaceLogicalConditions,
   InterfaceConditions,
+  InterfaceLogicalConditions,
 } from "@/shared/interfaces/interface.parser";
 import { Tree } from "./core.tree";
-import {
-  flexQLResultInterface,
-  runQuerySettingsInterface,
-} from "@/shared/interfaces/interface.adapter";
+import { runQuerySettingsInterface } from "@/shared/interfaces/interface.adapter";
+
+type Condition = InterfaceConditions | InterfaceLogicalConditions;
 
 export class Parser {
   public parse(): InterfaceLogicalConditions | null {
-    this.core();
+    if (this.peek().type === TokenType.EOF) return null;
+
+    const result = this.parseExpression(0);
+    if (this.peek().type !== TokenType.EOF) {
+      throw new Error(PARSER_ERROR.UNEXPECTED_PARENTHESIS);
+    }
+
+    this.tree.insert(result as unknown as InterfaceLogicalConditions);
     return this.tree.peek();
   }
 
-  private peek(): tokenInterface {
-    return this.tokens[this.pos];
+  private parseExpression(depth: number): Condition {
+    if (depth > this.maxDepth) {
+      throw new Error(PARSER_ERROR.MAX_DEPTH(this.maxDepth));
+    }
+
+    const andConditions: Condition[] = [this.parseOr(depth)];
+    while (this.isSeparator(separatorRecord.separators?.and)) {
+      this.consume();
+      andConditions.push(this.parseOr(depth));
+    }
+
+    return this.group("AND", andConditions);
+  }
+
+  private parseOr(depth: number): Condition {
+    const orConditions: Condition[] = [this.parseTerm(depth)];
+    while (this.isSeparator(separatorRecord.separators?.or)) {
+      this.consume();
+      orConditions.push(this.parseTerm(depth));
+    }
+
+    return this.group("OR", orConditions);
+  }
+
+  private parseTerm(depth: number): Condition {
+    if (this.peek().type === TokenType.OPEN_PAREN) {
+      this.consume();
+      const result = this.parseExpression(depth + 1);
+      if (this.peek().type !== TokenType.CLOSE_PAREN) {
+        throw new Error(PARSER_ERROR.UNMATCHED_PARENTHESIS);
+      }
+      this.consume();
+      return result;
+    }
+
+    const column = this.consume();
+    const op = this.consume();
+    const value = this.consume();
+
+    if (column.type !== TokenType.COLUMN) {
+      throw new Error(PARSER_ERROR.UNEXPECTED_COLUMN(column.type));
+    }
+    if (op.type !== TokenType.OPERATOR) {
+      throw new Error(PARSER_ERROR.UNEXPECTED_OPERATOR(op.type));
+    }
+    if (![TokenType.STRING, TokenType.NUMBER, TokenType.BOOLEAN].includes(value.type)) {
+      throw new Error(PARSER_ERROR.UNEXPECTED_VALUE(value.type));
+    }
+
+    const allowedOps = this.settings?.columnProtect?.rules?.[String(column.value)];
+    if (allowedOps && !allowedOps.includes(String(op.value))) {
+      throw new Error(
+        LEXER_ERROR.RULE_VIOLATION(String(column.value), String(op.value), allowedOps),
+      );
+    }
+
+    return { column: String(column.value), op: String(op.value), value: value.value };
+  }
+
+  private group(logic: "AND" | "OR", conditions: Condition[]): Condition {
+    return conditions.length === 1 ? conditions[0] : { logic, conditions };
+  }
+
+  private isSeparator(value: string | undefined): boolean {
+    return this.peek().type === TokenType.SEPARATOR && this.peek().value === value;
   }
 
   private consume(): tokenInterface {
-    let currentPos: number = 0;
-    if (this.pos < this.tokens.length) {
-      currentPos = this.pos;
-      this.pos++;
-    }
-    return this.tokens[currentPos];
+    return this.tokens[this.pos++];
   }
 
-  // Core/key stage of parser
-  private core() {
-    let andConditions: (InterfaceLogicalConditions | InterfaceConditions)[] =
-      [];
-    let orConditions: (InterfaceLogicalConditions | InterfaceConditions)[] = [];
-
-    while (this.peek() && this.peek().type !== TokenType.EOF) {
-      let column: tokenInterface = this.consume();
-      let op: tokenInterface = this.consume();
-      let value: tokenInterface = this.consume();
-
-      if (!Object.values(TokenType).includes(column.type)) {
-        throw new Error(PARSER_ERROR.UNEXPECTED_COLUMN(column.type));
-      }
-      if (!Object.values(TokenType).includes(op.type)) {
-        throw new Error(PARSER_ERROR.UNEXPECTED_OPERATOR(op.type));
-      }
-      if (!Object.values(TokenType).includes(value.type)) {
-        throw new Error(PARSER_ERROR.UNEXPECTED_VALUE(value.type));
-      }
-
-      // RULE MAP
-      const ruleMap = this.settings?.columnProtect?.rules;
-      if (ruleMap) {
-        const allowedOps = ruleMap[column.value];
-        if (allowedOps && !allowedOps.includes(String(op.value))) {
-          throw new Error(
-            LEXER_ERROR.RULE_VIOLATION(
-              String(column.value),
-              String(op.value),
-              allowedOps,
-            ),
-          );
-        }
-      }
-      // RULE MAP
-
-      orConditions.push({
-        column: column.value,
-        op: op.value,
-        value: value.value,
-      });
-
-      let next: tokenInterface["value"] = this.peek()?.value;
-      if (next == separatorRecord.separators?.and) {
-        this.consume();
-
-        if (orConditions.length === 1) {
-          andConditions.push(orConditions[0]);
-        } else {
-          andConditions.push({ logic: "OR", conditions: [...orConditions] });
-        }
-
-        orConditions = [];
-        continue;
-      }
-
-      if (next === separatorRecord.separators?.or) {
-        this.consume();
-        continue;
-      }
-
-      this.consume();
-    }
-
-    if (orConditions.length === 1) {
-      andConditions.push(orConditions[0]);
-    } else {
-      andConditions.push({ logic: "OR", conditions: [...orConditions] });
-    }
-
-    // Build tree
-    if (andConditions.length === 1) {
-      this.tree.insert(andConditions[0] as any);
-    } else {
-      this.tree.insert({ logic: "AND", conditions: andConditions });
-    }
+  private peek(): tokenInterface {
+    return this.tokens[this.pos] ?? { type: TokenType.EOF, value: "EOF" };
   }
 
-  private pos: number;
+  private readonly maxDepth: number;
+  private pos = 0;
   public tree = new Tree();
-  private readonly tokens: tokenInterface[];
-  private readonly settings?: runQuerySettingsInterface;
 
-  constructor(tokens: tokenInterface[], settings?: runQuerySettingsInterface) {
-    this.settings = settings;
-    this.tokens = tokens;
-    this.pos = 0;
+  constructor(
+    private readonly tokens: tokenInterface[],
+    private readonly settings?: runQuerySettingsInterface,
+  ) {
+    this.maxDepth = settings?.maxDepth ?? 3;
   }
 }

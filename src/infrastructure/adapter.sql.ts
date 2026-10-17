@@ -1,14 +1,14 @@
 import { BaseAstAdapter } from "./base.adapter";
-import { treeInterface } from "@/shared/interfaces/interface.tree";
+import { flattedAst } from "@/core/core.flatter";
 import { flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
 
 export class SQLAdapter extends BaseAstAdapter {
-  generate(): flexQLResultInterface {
+  generate(): flexQLResultInterface<string> {
     let logic: string[] = [];
     let result: string[] = [];
-    let values: any[] = [];
+    let values: unknown[] = [];
 
-    this.ast.forEach((element: any, index: number = 0) => {
+    this.ast.forEach((element: flattedAst, index: number = 0) => {
       index++;
 
       if (element.startGroup === true) {
@@ -18,8 +18,8 @@ export class SQLAdapter extends BaseAstAdapter {
 
       if (element.type == "leaf") {
         result.push(
-          element.column,
-          element.op === "==" ? "=" : element.op,
+          String(element.column),
+          element.op === "==" ? "=" : String(element.op),
           "?",
         );
 
@@ -52,10 +52,7 @@ export class SQLAdapter extends BaseAstAdapter {
     };
   }
 
-  protected readonly ast: treeInterface | any;
-
-  constructor(ast: any) {
-    super({});
-    this.ast = ast;
+  constructor(ast: flattedAst[]) {
+    super(ast);
   }
 }

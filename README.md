@@ -1,508 +1,209 @@
-# 🧩 FlexQL
-A lightweight **query language engine** for building filters **without writing complex SQL or ORM queries**.
+# FlexQL
 
 <p align="center">
-<img src="docs/Flexql-architecture.png" width="650"/>
+  <img src="image.png" alt="FlexQL" width="720" />
 </p>
 
----
+<p align="center">A small, adapter-based query language for readable database filters.</p>
 
-# 🚀 Overview
+## Why FlexQL?
 
-**FlexQL** lets you write readable and compact queries, which are parsed and converted into **database-specific formats** like SQL or Sequelize.
-Instead of manually building queries, you can write:
+FlexQL converts simple filter strings into structured SQL, Sequelize, MongoDB, Elasticsearch, or TypeORM-ready conditions. It helps you avoid repeating filter parsing logic in every API endpoint.
 
-```
-username==heja;age>18,status==active
-```
+- Readable query syntax for API filters
+- Parameterized SQL values
+- Protected columns and operator rules
+- One syntax for multiple database adapters
+- TypeScript support with generated declarations
+- Parenthesized nested expressions with a configurable depth limit
 
-Which means:
-
-```
-(username == "heja" AND age > 18) OR (status == "active")
-```
-
-> ⚠️ **Note:** Do **not use spaces** in the query string as separators. Use `;` for AND and `,` for OR.
-
----
-
-# ✨ Features
-
-- 🧠 **Readable syntax** — intuitive query format
-- 🔀 **Flexible separators** — `;` = AND, `,` = OR
-- 🔒 **Safe** — parameterized output to prevent SQL injection
-- 🛡️ **Column protection** — restrict or block access to sensitive columns
-- ⚙️ **Adapter-based** — SQL, Sequelize, MongoDB (coming), Elasticsearch (coming)
-- 🧱 **Lexer → Parser → Adapter** — modular and extensible
-- 🧪 **Type-validated** — automatically checks numbers, strings, booleans
-- 🧰 **Easy to extend** — add new adapters or operators quickly
-
----
-
-# ⚙️ How FlexQL Works
-
-```
-Query String
-     ↓
-  Lexer → tokens
-     ↓
-  Parser → AST (Abstract Syntax Tree)
-     ↓
-  Adapter → SQL / Sequelize / MongoDB
-```
-
----
-
-# 🌳 AST Example
-
-### Query
-
-```
-username==heja;age>18,status==active
-```
-
-### Generated AST (simplified)
-
-```json
-{
-  "type": "OR",
-  "children": [
-    {
-      "type": "AND",
-      "children": [
-        { "field": "username", "operator": "==", "value": "heja" },
-        { "field": "age", "operator": ">", "value": 18 }
-      ]
-    },
-    { "field": "status", "operator": "==", "value": "active" }
-  ]
-}
-```
-
-> FlexQL builds a structured query, not just parses a string.
-
----
-
-# 🧱 Adapter Outputs
-
-## 🔹 SQL Adapter
-
-### Basic filter — single AND chain
-
-```
-username==heja;age>18;country==NL
-```
-
-```js
-{
-  type: 'sql',
-  payload: {
-    conditions: 'WHERE username = ? AND age > ? AND country = ?',
-    values: ['heja', 18, 'NL']
-  }
-}
-```
-
-**Usage:**
-
-```ts
-import { FlexQL } from "flexql";
-import db from "./db"; // your database connection
-
-const result = FlexQL.parse('username==heja;age>18;country==NL', {
-  adapter: "sql",
-});
-
-const rows = await db.query(
-  `SELECT * FROM users ${result.payload.conditions}`,
-  result.payload.values,
-);
-```
-
----
-
-### Mixed AND/OR — user search with fallback
-
-```
-username==heja;age>18,status==active
-```
-
-```js
-{
-  type: 'sql',
-  payload: {
-    conditions: 'WHERE username = ? AND age > ? OR status = ?',
-    values: ['heja', 18, 'active']
-  }
-}
-```
-
-**Usage:**
-
-```ts
-const result = FlexQL.parse('username==heja;age>18,status==active', {
-  adapter: "sql",
-});
-
-const users = await db.query(
-  `SELECT * FROM users ${result.payload.conditions}`,
-  result.payload.values,
-);
-```
-
----
-
-### Date range filter
-
-```
-created_at>=2025-01-01;created_at<=2025-12-31;active==true
-```
-
-```js
-{
-  type: 'sql',
-  payload: {
-    conditions: 'WHERE created_at >= ? AND created_at <= ? AND active = ?',
-    values: ['2025-01-01', '2025-12-31', true]
-  }
-}
-```
-
-**Usage:**
-
-```ts
-const result = FlexQL.parse(
-  'created_at>=2025-01-01;created_at<=2025-12-31;active==true',
-  { adapter: "sql" },
-);
-
-const logs = await db.query(
-  `SELECT * FROM audit_logs ${result.payload.conditions} ORDER BY created_at DESC`,
-  result.payload.values,
-);
-```
-
-✅ **Safe and parameterized** — values are never interpolated into the query string.
-
----
-
-## 🔹 Sequelize Adapter
-
-### Multi-country OR filter
-
-```
-username==heja,country==NL;score>90,rank>=5;active==true,verified==true
-```
-
-```js
-{
-  type: 'sequelize',
-  payload: {
-    conditions: {
-      [Op.and]: [
-        {
-          [Op.or]: [
-            { username: 'heja' },
-            { country: 'NL' }
-          ]
-        },
-        {
-          [Op.or]: [
-            { score: { [Op.gt]: 90 } },
-            { rank: { [Op.gte]: 5 } }
-          ]
-        },
-        {
-          [Op.or]: [
-            { active: true },
-            { verified: true }
-          ]
-        }
-      ]
-    }
-  }
-}
-```
-
-**Usage:**
-
-```ts
-import { FlexQL } from "flexql";
-import { User } from "./models";
-
-const result = FlexQL.parse(
-  'username==heja,country==NL;score>90,rank>=5;active==true,verified==true',
-  { adapter: "sequelize" },
-);
-
-const users = await User.findAll({
-  where: result.payload.conditions,
-});
-```
-
----
-
-### Admin dashboard — dynamic filter from query params
-
-```
-role==admin,role==moderator;banned==false;last_login>=2025-06-01
-```
-
-```js
-{
-  type: 'sequelize',
-  payload: {
-    conditions: {
-      [Op.and]: [
-        {
-          [Op.or]: [
-            { role: 'admin' },
-            { role: 'moderator' }
-          ]
-        },
-        { banned: false },
-        { last_login: { [Op.gte]: '2025-06-01' } }
-      ]
-    }
-  }
-}
-```
-
-**Usage:**
-
-```ts
-// req.query.filter = 'role==admin,role==moderator;banned==false;last_login>=2025-06-01'
-const result = FlexQL.parse(req.query.filter, { adapter: "sequelize" });
-
-const admins = await User.findAll({
-  where: result.payload.conditions,
-  order: [["last_login", "DESC"]],
-});
-```
-
----
-
-### Paginated product listing
-
-```
-category==electronics;price>=100;price<=999;in_stock==true
-```
-
-```js
-{
-  type: 'sequelize',
-  payload: {
-    conditions: {
-      [Op.and]: [
-        { category: 'electronics' },
-        { price: { [Op.gte]: 100 } },
-        { price: { [Op.lte]: 999 } },
-        { in_stock: true }
-      ]
-    }
-  }
-}
-```
-
-**Usage:**
-
-```ts
-const result = FlexQL.parse(
-  'category==electronics;price>=100;price<=999;in_stock==true',
-  { adapter: "sequelize" },
-);
-
-const products = await Product.findAndCountAll({
-  where: result.payload.conditions,
-  limit: 20,
-  offset: page * 20,
-});
-```
-
----
-
-# 🛡️ Column Protection
-
-FlexQL lets you restrict which columns can be queried and which operators are allowed per column. This is useful for preventing access to sensitive fields and enforcing query rules on the server side.
-
-## Options
-
-| Option    | Type                              | Description                                      |
-| --------- | --------------------------------- | ------------------------------------------------ |
-| `exclude` | `string[]`                        | Columns that cannot be queried at all            |
-| `rules`   | `{ [column: string]: Operator[] }` | Allowed operators per column                     |
-
-### Exclude — block sensitive columns
-
-Prevent querying sensitive columns like `password`, `token`, or `secret`:
-
-```ts
-const result = FlexQL.parse('username==heja;password==1234', {
-  adapter: "sql",
-  columnProtect: {
-    exclude: ["password", "token"],
-  },
-});
-// ❌ Throws: "Access to protected column is not allowed."
-```
-
-### Rules — restrict operators per column
-
-Allow only specific operators for a column. For example, `email` should only support exact match, while `age` should only support comparison operators:
-
-```ts
-const result = FlexQL.parse('age>=30;username==heja', {
-  adapter: "sql",
-  columnProtect: {
-    rules: {
-      age: [">", "<", "<=", ">="],
-      email: ["=="],
-    },
-  },
-});
-```
-
-If a disallowed operator is used:
-
-```ts
-FlexQL.parse('email>a', {
-  adapter: "sql",
-  columnProtect: {
-    rules: {
-      email: ["=="],
-    },
-  },
-});
-// ❌ Throws: "Operator '>' is not allowed for column 'email'. Allowed: =="
-```
-
-### Combining exclude and rules
-
-```ts
-const flexQl = new FlexQL();
-
-const result = flexQl.parse(
-  'age>=30;username==heja,username==admin,country==NL;score>80,rank>=10;active==true,verified==true',
-  {
-    separators: { and: ";", or: "," },
-    adapter: "sql",
-    columnProtect: {
-      exclude: ["password"],
-      rules: {
-        age: [">", "<", "<=", ">="],
-      },
-    },
-  },
-);
-```
-
-## Supported Operators
-
-| Operator | Description           |
-| -------- | --------------------- |
-| `==`     | Equal                 |
-| `!=`     | Not equal             |
-| `>`      | Greater than          |
-| `<`      | Less than             |
-| `>=`     | Greater than or equal |
-| `<=`     | Less than or equal    |
-
----
-
-# 🔤 Syntax Reference
-
-| Element        | Description        | Examples                         |
-| -------------- | ------------------ | -------------------------------- |
-| **Identifier** | Column / field     | `username`, `age`                |
-| **Operator**   | Comparison         | `==`, `!=`, `>`, `<`, `>=`, `<=` |
-| **Logic**      | Combine conditions | `;` = AND, `,` = OR              |
-| **Value**      | Match value        | `heja`, `18`, `true`           |
-
----
-
-# 🧩 Example Queries
-
-### Basic
-
-```
-username==test;age>10
-```
-
-```
-username==test,status==false
-```
-
-### Medium
-
-```
-age>=18;(country==TR,country==DE);premium_user==true
-```
-
-```
-score>50,rank>=3;active==true,verified==true
-```
-
-### Complex
-
-```
-username==heja,country==NL;score>90,rank>=5;active==true,verified==true;created_at>=2025-01-01;updated_at<=2025-10-01,last_login>=2025-09-01
-```
-
----
-
-# 📦 Installation & Usage
-
-> 🚧 **Coming Soon** — FlexQL will be available on npm shortly. Stay tuned!
+## Installation
 
 ```bash
 npm install flexql
 ```
 
+## Quick start
+
 ```ts
 import { FlexQL } from "flexql";
-const query = 'username==heja;age>18;country==NL';
-const result = FlexQL.parse(query, { adapter: "sequelize" });
-console.log(result.payload.conditions);
+
+const flexql = new FlexQL();
+const result = flexql.parse("username==ali;age>18,status==active", {
+  adapter: "sql",
+});
+
+console.log(result);
 ```
 
----
+```ts
+{
+  type: "sql",
+  payload: {
+    conditions: "( username = ? AND age > ? ) OR status = ?",
+    values: ["ali", 18, "active"]
+  }
+}
+```
 
-# 💡 Why FlexQL?
+Values are returned separately from SQL conditions. Pass them to your database driver; do not interpolate them into SQL strings.
 
-- ✅ **Readable and compact queries**
-- 🧱 **Works across multiple databases**
-- 🧠 **Logical precedence support** — AND > OR
-- 🔒 **Safe parameterized output**
-- 🛡️ **Column-level access control** — exclude or restrict operators per column
-- 🌍 **Portable architecture** via adapters
-- 🧩 **Modular & extensible**
+## Query syntax
 
----
+| Syntax | Meaning |
+| --- | --- |
+| `==` | equals |
+| `!=` | not equals |
+| `>` / `<` | greater / less than |
+| `>=` / `<=` | greater or equal / less or equal |
+| `,` | OR |
+| `;` | AND |
 
-# 🧑‍💻 Use Cases
+```text
+country==TR,country==DE;age>=18
+```
 
-- Admin dashboards with dynamic filters
-- API query parameter parsing
-- ORM-independent rule engines
-- Safe filtering for user input
-- Multi-tenant apps with column-level access control
+This means:
 
----
+```text
+(country == "TR" OR country == "DE") AND age >= 18
+```
 
-# 🧭 Roadmap
+Parentheses can be used to create nested groups. The default maximum nesting depth is `3`:
 
-- [x] SQL adapter
-- [x] Sequelize adapter
-- [x] Column protection (exclude + operator rules)
-- [ ] MongoDB adapter
-- [ ] Elasticsearch adapter
-- [ ] Nested query support
-- [ ] Type inference & validation
-- [ ] Query optimizer
-- [ ] FlexQL Playground
+```ts
+const result = flexql.parse("status==active;(price>=100000,featured==true)", {
+  adapter: "elasticsearch",
+  maxDepth: 5,
+});
+```
 
----
+Numbers and booleans are parsed automatically:
 
-# ⚖️ License
+```text
+price>=100000;active==true
+```
 
-MIT License © 2025 **Heja "xeja" Arslan**
+## Adapters
+
+### SQL
+
+```ts
+const result = flexql.parse("status==active;age>=18", { adapter: "sql" });
+
+const rows = await db.query(
+  `SELECT * FROM users WHERE ${result.payload.conditions}`,
+  result.payload.values,
+);
+```
+
+### Sequelize
+
+```ts
+const result = flexql.parse("status==active;age>=18", {
+  adapter: "sequelize",
+});
+
+const users = await User.findAll({ where: result.payload.conditions });
+```
+
+### MongoDB
+
+```ts
+const result = flexql.parse("status==active;age>=18", { adapter: "mongo" });
+const users = await collection.find(result.payload).toArray();
+```
+
+### Elasticsearch
+
+```ts
+const result = flexql.parse("status==active;age>=18", {
+  adapter: "elasticsearch",
+});
+
+const response = await client.search({
+  index: "users",
+  query: result.payload.conditions,
+});
+```
+
+### TypeORM
+
+```ts
+const result = flexql.parse("status==active;age>=18", {
+  adapter: "typeorm",
+});
+
+const users = await userRepository
+  .createQueryBuilder("user")
+  .where(result.payload.conditions.where, result.payload.conditions.parameters)
+  .getMany();
+```
+
+The TypeORM adapter returns a dependency-free QueryBuilder condition and named parameters.
+
+## Protecting columns
+
+```ts
+const result = flexql.parse("email==user@example.com;age>18", {
+  adapter: "sql",
+  columnProtect: {
+    exclude: ["password", "token"],
+    rules: {
+      email: ["=="],
+      age: [">", ">=", "<", "<="],
+    },
+  },
+});
+```
+
+## Custom separators
+
+```ts
+const result = flexql.parse("status==active|age>18", {
+  adapter: "sql",
+  separators: { and: "|", or: "&" },
+});
+```
+
+## How it works
+
+```text
+Query string → Lexer → Parser → AST → Adapter output
+```
+
+## Development
+
+```bash
+npm install
+npm test
+npm run typecheck
+npm run build
+```
+
+Other useful scripts:
+
+```bash
+npm run test:watch
+npm run test:coverage
+```
+
+## Project status
+
+Currently supported adapters:
+
+- SQL
+- Sequelize
+- MongoDB
+- Elasticsearch
+- TypeORM
+
+The syntax intentionally stays small and supports nested parentheses with a configurable depth limit.
+
+## Contributing
+
+Bug reports, tests, improvements, and new adapters are welcome. Please open an issue or pull request with a clear description and relevant test coverage.
+
+## License
+
+ISC. See [LICENSE](LICENSE).

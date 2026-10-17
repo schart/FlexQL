@@ -2,14 +2,26 @@
   "name": "flexql",
   "version": "1.1.1",
   "description": "A lightweight but powerful query language engine",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "image.png"
+  ],
   "type": "commonjs",
   "author": "",
   "license": "ISC",
   "scripts": {
+    "build": "tsc && tsc-alias",
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit",
     "start": "ts-node -r tsconfig-paths/register src/demo/demo.ts",
     "start:dev": "ts-node -r tsconfig-paths/register src/demo/demo.ts",
-    "test": "jest"
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage --runInBand"
   },
   "keywords": [],
   "devDependencies": {
@@ -20,6 +32,7 @@
     "jest": "^30.2.0",
     "prettier": "^3.6.2",
     "ts-jest": "^29.4.4",
+    "tsc-alias": "^1.8.16",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
@@ -35,5 +48,13 @@
     "mongoose": "^9.1.2",
     "pg": "^8.20.0",
     "sequelize": "^6.37.7"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": ["<rootDir>/tests"],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    }
   }
 }

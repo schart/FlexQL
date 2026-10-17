@@ -11,12 +11,14 @@ import {
 } from "@/shared/interfaces/interface.adapter";
 import { AstFlatter, flattedAst } from "@/core/core.flatter";
 import { MongoAdapter } from "@/infrastructure/adapter.mongo";
+import { ElasticsearchAdapter } from "@/infrastructure/adapter.elasticsearch";
+import { TypeORMAdapter } from "@/infrastructure/adapter.typeorm";
 
 export class FlexQL {
   public parse(
     input: string,
     settings?: runQuerySettingsInterface,
-  ): flexQLResultInterface {
+  ): flexQLResultInterface<unknown> {
     this.preSettings(settings);
 
     // Tokenize
@@ -28,8 +30,6 @@ export class FlexQL {
     // Generate an AST
     const parsed: treeInterface | null = new Parser(tokens, settings).parse();
     if (!parsed) return { type: "sql", payload: { conditions: null } };
-    console.log("Structured: ", parsed)
-
     const flattedAst = new AstFlatter(parsed).main();
     return this.executeAdapter(flattedAst, settings);
   }
@@ -37,11 +37,13 @@ export class FlexQL {
   private executeAdapter(
     ast: flattedAst[],
     { adapter }: Pick<runQuerySettingsInterface, "adapter"> = {},
-  ): flexQLResultInterface {
-    const adapters: Record<adapterType, flexQLResultInterface<any>> = {
+  ): flexQLResultInterface<unknown> {
+    const adapters: Record<adapterType, flexQLResultInterface<unknown>> = {
       sql: new SQLAdapter(ast).generate(),
       sequelize: new SequelizeAdapter(ast).generate(),
       mongo: new MongoAdapter(ast).generate(),
+      elasticsearch: new ElasticsearchAdapter(ast).generate(),
+      typeorm: new TypeORMAdapter(ast).generate(),
     };
 
     return adapters[adapter || "sql"];

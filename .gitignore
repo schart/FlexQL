@@ -37,6 +37,3 @@ Thumbs.db
 coverage/
 
 # Lock dosyaları
-package-lock.json
-yarn.lock
-pnpm-lock.yaml

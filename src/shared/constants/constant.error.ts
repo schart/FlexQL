@@ -12,6 +12,9 @@ export const PARSER_ERROR = {
   UNEXPECTED_COLUMN: (type: string) => `Unexpected column token: '${type}'.`,
   UNEXPECTED_OPERATOR: (type: string) => `Unexpected operator token: '${type}'.`,
   UNEXPECTED_VALUE: (type: string) => `Unexpected value token: '${type}'.`,
+  UNEXPECTED_PARENTHESIS: "Unexpected parenthesis.",
+  UNMATCHED_PARENTHESIS: "Unmatched parenthesis.",
+  MAX_DEPTH: (depth: number) => `Maximum query depth of ${depth} exceeded.`,
 };
 
 export const GENERAL_ERROR = {

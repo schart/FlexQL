@@ -1,62 +1,24 @@
-import { BaseAstAdapter } from "./base.adapter";
 import { flattedAst } from "@/core/core.flatter";
 import { SEQUZELIZE_OPERATORS } from "@/shared/constants/constant.sequelize";
 import { flexQLResultInterface } from "@/shared/interfaces/interface.adapter";
+import { BaseAstAdapter } from "./base.adapter";
+import { QueryGroup, QueryNode, unflattenAst } from "./adapter.ast";
 
 export class SequelizeAdapter extends BaseAstAdapter {
-  generate(): flexQLResultInterface {
-    let result: any = [];
-    let logic: string[] = [];
-
-    this.ast.forEach((element, index) => {
-      index++;
-
-      if (element.startGroup === true) {
-        if (element.parentLogic === "OR") {
-          result.push({ [SEQUZELIZE_OPERATORS.OR]: [] });
-          logic.push(SEQUZELIZE_OPERATORS.OR);
-        } else if (element.parentLogic === "AND") {
-          logic.push(SEQUZELIZE_OPERATORS.AND);
-        }
-      }
-
-      if (element.type === "leaf") {
-        if (logic[logic.length - 1] === SEQUZELIZE_OPERATORS.OR) {
-          let or = result[result.length - 1][SEQUZELIZE_OPERATORS["OR"]];
-
-          if (or) {
-            or.push({
-              [String(element.column)]: {
-                [SEQUZELIZE_OPERATORS[String(element.op)]]: element.value,
-              },
-            });
-          }
-        } else {
-          result.push({
-            [String(element.column)]: {
-              [SEQUZELIZE_OPERATORS[String(element.op)]]: element.value,
-            },
-          });
-        }
-      }
-
-      if (element.endGroup) {
-        logic.pop();
-      }
-    });
-
-    return {
-      payload: {
-        conditions: { [SEQUZELIZE_OPERATORS.AND]: result },
-      },
-      type: "sequelize",
-    };
+  generate(): flexQLResultInterface<Record<string, unknown>> {
+    return { type: "sequelize", payload: { conditions: this.toCondition(unflattenAst(this.ast)) } };
   }
 
-  protected readonly ast: flattedAst[];
-
-  constructor(ast: flattedAst[]) {
-    super({});
-    this.ast = ast;
+  private toCondition(node: QueryNode): Record<string | symbol, unknown> {
+    if (this.isGroup(node)) {
+      return { [SEQUZELIZE_OPERATORS[node.logic]]: node.conditions.map((condition) => this.toCondition(condition)) };
+    }
+    const operator = SEQUZELIZE_OPERATORS[node.op];
+    if (!operator) throw new Error(`Unsupported Sequelize operator: ${node.op}`);
+    return { [node.column]: { [operator]: node.value } };
   }
+
+  private isGroup(node: QueryNode): node is QueryGroup { return "conditions" in node; }
+
+  constructor(ast: flattedAst[]) { super(ast); }
 }
