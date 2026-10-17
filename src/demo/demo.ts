@@ -1,4 +1,3 @@
-import { AIService } from "@/ai/ai.service";
 import { FlexQL } from "../api";
 import {
   runQuerySettingsInterface,
@@ -8,7 +7,7 @@ import {
 const flexQl = new FlexQL();
 const runQuerySettings: runQuerySettingsInterface = {
   separators: { and: ";", or: "," },
-  adapter: "sql",
+  adapter: "elasticsearch",
   columnProtect: {
     exclude: ["password"],
     rules: {},
@@ -20,11 +19,6 @@ const generatedCode: flexQLResultInterface | null = flexQl.parse(
   input,
   runQuerySettings,
 );
-
-// AI parser
-new AIService(input).AIOrchestrator().then((res: string) => {
-  // console.log("AI ", JSON.parse(res));
-});
 
 // Normal parser
 console.log("Generated code ", generatedCode);
