@@ -20,7 +20,7 @@ FlexQL converts simple filter strings into structured SQL, Sequelize, MongoDB, E
 ## Installation
 
 ```bash
-npm install flexql
+npm install @xeja/flexql
 ```
 
 ## Quick start

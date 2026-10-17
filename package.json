@@ -1,6 +1,6 @@
 {
-  "name": "flexql",
-  "version": "1.1.1",
+  "name": "@xeja/flexql",
+  "version": "1.0.0",
   "description": "A lightweight but powerful query language engine",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -32,8 +32,8 @@
     "jest": "^30.2.0",
     "prettier": "^3.6.2",
     "ts-jest": "^29.4.4",
-    "tsc-alias": "^1.8.16",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
@@ -52,7 +52,9 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "roots": ["<rootDir>/tests"],
+    "roots": [
+      "<rootDir>/tests"
+    ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1"
     }
