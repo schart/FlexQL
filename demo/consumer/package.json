@@ -1,0 +1,11 @@
+{
+  "name": "flexql-consumer-demo",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@xeja/flexql": "1.0.0"
+  }
+}

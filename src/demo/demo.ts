@@ -7,7 +7,7 @@ import {
 const flexQl = new FlexQL();
 const runQuerySettings: runQuerySettingsInterface = {
   separators: { and: ";", or: "," },
-  adapter: "elasticsearch",
+  adapter: "sql",
   columnProtect: {
     exclude: ["password"],
     rules: {},
@@ -21,4 +21,4 @@ const generatedCode: flexQLResultInterface | null = flexQl.parse(
 );
 
 // Normal parser
-console.log("Generated code ", generatedCode);
+console.dir(generatedCode, { depth: null });
