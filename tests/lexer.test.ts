@@ -20,4 +20,32 @@ describe("Lexer Tests", () => {
       { type: "EOF", value: "EOF" },
     ]);
   });
+
+  it("Should lexer boolean literals without inverting false", () => {
+    const tokens = new Lexer("active==true;inactive==false").tokenizer();
+
+    expect(tokens).toEqual([
+      { type: "COLUMN", value: "active" },
+      { type: "OPERATOR", value: "==" },
+      { type: "BOOLEAN", value: true },
+      { type: "SEPARATOR", value: ";" },
+      { type: "COLUMN", value: "inactive" },
+      { type: "OPERATOR", value: "==" },
+      { type: "BOOLEAN", value: false },
+      { type: "EOF", value: "EOF" },
+    ]);
+  });
+
+  it("Should lexer decimal numbers without truncation", () => {
+    const tokens = new Lexer("price>=4.5;views>100").tokenizer();
+
+    expect(tokens[2]).toEqual({ type: "NUMBER", value: 4.5 });
+    expect(tokens[6]).toEqual({ type: "NUMBER", value: 100 });
+  });
+
+  it("Should lexer non-numeric values as strings", () => {
+    const tokens = new Lexer("code==12abc").tokenizer();
+
+    expect(tokens[2]).toEqual({ type: "STRING", value: "12abc" });
+  });
 });

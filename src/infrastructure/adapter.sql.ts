@@ -26,7 +26,8 @@ export class SQLAdapter extends BaseAstAdapter {
         values.push(element.value);
 
         // If not endgroup both current (index-1) and next (index)
-        if (!this.ast[index].endGroup) {
+        const next = this.ast[index];
+        if (next && !next.endGroup && logic.length > 0) {
           result.push(logic[logic.length - 1]);
         }
       }

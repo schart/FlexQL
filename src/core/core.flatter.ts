@@ -90,14 +90,12 @@ export class AstFlatter {
             type: "end",
           });
 
-          if (node.conditions.length > 1) {
-            // Add childs reversedly
-            for (let i = node.conditions.length - 1; i >= 0; i--) {
-              stack.push({
-                type: "node",
-                node: node.conditions[i],
-              });
-            }
+          // Add childs reversedly
+          for (let i = node.conditions.length - 1; i >= 0; i--) {
+            stack.push({
+              type: "node",
+              node: node.conditions[i],
+            });
           }
         } else {
           // Add leaf

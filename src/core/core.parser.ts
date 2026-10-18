@@ -19,7 +19,12 @@ export class Parser {
       throw new Error(PARSER_ERROR.UNEXPECTED_PARENTHESIS);
     }
 
-    this.tree.insert(result as unknown as InterfaceLogicalConditions);
+    // Adapters always expect a logical group at the root, so a single
+    // condition is wrapped in an AND group instead of becoming the root.
+    const root: InterfaceLogicalConditions =
+      "conditions" in result ? result : { logic: "AND", conditions: [result] };
+
+    this.tree.insert(root);
     return this.tree.peek();
   }
 
@@ -82,7 +87,18 @@ export class Parser {
       throw new Error(PARSER_ERROR.UNEXPECTED_VALUE(value.type));
     }
 
-    const allowedOps = this.settings?.columnProtect?.rules?.[columnName];
+    // Only own entries are valid rules: inherited Object.prototype members
+    // (e.g. "constructor", "toString") must not be treated as operator rules.
+    const rules = this.settings?.columnProtect?.rules;
+    const allowedOps =
+      rules && Object.prototype.hasOwnProperty.call(rules, columnName)
+        ? rules[columnName]
+        : undefined;
+
+    if (allowedOps !== undefined && !Array.isArray(allowedOps)) {
+      throw new Error(PARSER_ERROR.INVALID_COLUMN_RULE(columnName));
+    }
+
     if (allowedOps && !allowedOps.includes(String(op.value))) {
       throw new Error(
         LEXER_ERROR.RULE_VIOLATION(columnName, String(op.value), allowedOps),

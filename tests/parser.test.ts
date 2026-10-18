@@ -47,4 +47,37 @@ describe("Parser Tests", () => {
       "Maximum query depth of 2 exceeded.",
     );
   });
+
+  it("Should wrap a single condition in a logical group", () => {
+    const tokens = new Lexer("A==1").tokenizer();
+    const parsedTree = new Parser(tokens).parse();
+
+    expect(parsedTree).toEqual({
+      logic: "AND",
+      conditions: [{ column: "A", op: "==", value: 1 }],
+    });
+  });
+
+  it("Should ignore inherited properties when resolving column rules", () => {
+    const settings = { columnProtect: { rules: { age: [">"] } } };
+
+    for (const column of ["__proto__", "constructor", "toString"]) {
+      const tokens = new Lexer(`${column}==1`).tokenizer();
+
+      expect(new Parser(tokens, settings).parse()).toEqual({
+        logic: "AND",
+        conditions: [{ column, op: "==", value: 1 }],
+      });
+    }
+  });
+
+  it("Should still enforce own column rules", () => {
+    const tokens = new Lexer("age>18").tokenizer();
+
+    expect(() =>
+      new Parser(tokens, {
+        columnProtect: { rules: { age: ["=="] } },
+      }).parse(),
+    ).toThrow("Operator '>' is not allowed for column 'age'");
+  });
 });

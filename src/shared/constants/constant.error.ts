@@ -15,6 +15,8 @@ export const PARSER_ERROR = {
   UNEXPECTED_PARENTHESIS: "Unexpected parenthesis.",
   UNMATCHED_PARENTHESIS: "Unmatched parenthesis.",
   MAX_DEPTH: (depth: number) => `Maximum query depth of ${depth} exceeded.`,
+  INVALID_COLUMN_RULE: (column: string) =>
+    `Invalid columnProtect rule for column '${column}': expected an array of operators.`,
 };
 
 export const GENERAL_ERROR = {
