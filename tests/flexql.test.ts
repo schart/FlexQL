@@ -29,4 +29,22 @@ describe("FlexQL public API", () => {
       }),
     ).toThrow("Maximum query depth of 2 exceeded.");
   });
+
+  it("rejects SQL expressions disguised as column names", () => {
+    expect(() =>
+      new FlexQL().parse("1>0", { adapter: "sql" }),
+    ).toThrow("Invalid column name");
+    expect(() =>
+      new FlexQL().parse("city==x,1>0", { adapter: "sql" }),
+    ).toThrow("Invalid column name");
+  });
+
+  it("supports an explicit column allow-list", () => {
+    expect(() =>
+      new FlexQL().parse("email==x", {
+        adapter: "typeorm",
+        allowedColumns: ["city"],
+      }),
+    ).toThrow("Column is not allowed");
+  });
 });

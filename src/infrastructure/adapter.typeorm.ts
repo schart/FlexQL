@@ -25,7 +25,10 @@ export class TypeORMAdapter extends BaseAstAdapter {
     if (!operators[node.op]) throw new Error(`Unsupported TypeORM operator: ${node.op}`);
     const parameter = `param${nextParameter()}`;
     parameters[parameter] = node.value;
-    return `\`${node.column}\` ${operators[node.op]} :${parameter}`;
+    // Keep this defense even though the parser validates identifiers: the
+    // adapter must not become unsafe if it is later used with a direct AST.
+    const escapedColumn = node.column.replace(/`/g, "``");
+    return `\`${escapedColumn}\` ${operators[node.op]} :${parameter}`;
   }
 
   private isGroup(node: QueryNode): node is QueryGroup { return "conditions" in node; }

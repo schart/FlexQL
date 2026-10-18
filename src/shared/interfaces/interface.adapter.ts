@@ -16,6 +16,8 @@ export interface protectedColumns {
 export interface runQuerySettingsInterface
   extends separatorSettingsInterface, protectedColumns {
   adapter?: adapterType | "sql";
+  /** Optional allow-list for columns accepted from the query string. */
+  allowedColumns?: string[];
   maxDepth?: number;
 }
 

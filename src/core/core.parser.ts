@@ -65,6 +65,16 @@ export class Parser {
     if (column.type !== TokenType.COLUMN) {
       throw new Error(PARSER_ERROR.UNEXPECTED_COLUMN(column.type));
     }
+    const columnName = String(column.value);
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(columnName)) {
+      throw new Error(`Invalid column name: ${columnName}`);
+    }
+    if (
+      this.settings?.allowedColumns &&
+      !this.settings.allowedColumns.includes(columnName)
+    ) {
+      throw new Error(`Column is not allowed: ${columnName}`);
+    }
     if (op.type !== TokenType.OPERATOR) {
       throw new Error(PARSER_ERROR.UNEXPECTED_OPERATOR(op.type));
     }
@@ -72,14 +82,14 @@ export class Parser {
       throw new Error(PARSER_ERROR.UNEXPECTED_VALUE(value.type));
     }
 
-    const allowedOps = this.settings?.columnProtect?.rules?.[String(column.value)];
+    const allowedOps = this.settings?.columnProtect?.rules?.[columnName];
     if (allowedOps && !allowedOps.includes(String(op.value))) {
       throw new Error(
-        LEXER_ERROR.RULE_VIOLATION(String(column.value), String(op.value), allowedOps),
+        LEXER_ERROR.RULE_VIOLATION(columnName, String(op.value), allowedOps),
       );
     }
 
-    return { column: String(column.value), op: String(op.value), value: value.value };
+    return { column: columnName, op: String(op.value), value: value.value };
   }
 
   private group(logic: "AND" | "OR", conditions: Condition[]): Condition {
