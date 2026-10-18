@@ -1,5 +1,9 @@
+# Images
+/docs
+
 # Node.js dependencies
 node_modules/
+
 
 # Build output
 dist/
