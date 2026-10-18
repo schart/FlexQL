@@ -144,17 +144,18 @@ export class Lexer {
       this.forwardNextToken();
     }
 
-    if (value == "true" || value == "false") {
+    if (value === "true" || value === "false") {
       possibleDataType = "BOOLEAN";
-      value = Boolean(value);
-    } else if (Number.isInteger(Number.parseInt(value))) {
-      value = Number.parseInt(value);
+      value = value === "true";
+    } else if (value.trim() !== "" && Number.isFinite(Number(value))) {
+      value = Number(value);
     } else {
       possibleDataType = "STRING";
       value = value.replace(/^["']|["']$/g, "");
     }
 
-    if (value !== 0 && !value) throw new Error(LEXER_ERROR.VALUE_LEN);
+    // Only a completely empty literal is invalid (0 and false are valid).
+    if (value === "") throw new Error(LEXER_ERROR.VALUE_LEN);
     this.tokens.push(
       this.generateToken({ type: TokenType[possibleDataType], value: value }),
     );

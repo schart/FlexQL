@@ -9,6 +9,7 @@ export const SEQUZELIZE_OPERATORS: Record<string, symbol> = {
   ">": Op.gt,
   "<": Op.lt,
   "==": Op.eq,
+  "!=": Op.ne,
   ">=": Op.gte,
   "<=": Op.lte,
 };

@@ -1,6 +1,5 @@
 import { Lexer, Parser } from "@/core";
 import { Settings } from "@/config/settings";
-import { adapterType } from "@/shared/types/type.adapter";
 import { SQLAdapter } from "@/infrastructure/adapter.sql";
 import { treeInterface } from "@/shared/interfaces/interface.tree";
 import { tokenInterface } from "@/shared/interfaces/interface.lexer";
@@ -38,15 +37,21 @@ export class FlexQL {
     ast: flattedAst[],
     { adapter }: Pick<runQuerySettingsInterface, "adapter"> = {},
   ): flexQLResultInterface<unknown> {
-    const adapters: Record<adapterType, flexQLResultInterface<unknown>> = {
-      sql: new SQLAdapter(ast).generate(),
-      sequelize: new SequelizeAdapter(ast).generate(),
-      mongo: new MongoAdapter(ast).generate(),
-      elasticsearch: new ElasticsearchAdapter(ast).generate(),
-      typeorm: new TypeORMAdapter(ast).generate(),
-    };
-
-    return adapters[adapter || "sql"];
+    // Only the requested adapter is generated: building every adapter makes a
+    // query fail whenever any other adapter does not support one of its operators.
+    switch (adapter || "sql") {
+      case "sequelize":
+        return new SequelizeAdapter(ast).generate();
+      case "mongo":
+        return new MongoAdapter(ast).generate();
+      case "elasticsearch":
+        return new ElasticsearchAdapter(ast).generate();
+      case "typeorm":
+        return new TypeORMAdapter(ast).generate();
+      case "sql":
+      default:
+        return new SQLAdapter(ast).generate();
+    }
   }
 
   private preSettings(settings?: runQuerySettingsInterface | {}) {

@@ -14,6 +14,18 @@ export interface QueryGroup {
 export type QueryNode = QueryLeaf | QueryGroup;
 
 export function unflattenAst(ast: flattedAst[]): QueryNode {
+  const root = ast[0];
+
+  // A single leaf may be passed as the whole document; return it as-is so the
+  // caller never receives an empty condition group (which would match all rows).
+  if (root && !root.startGroup) {
+    return {
+      column: String(root.column),
+      op: String(root.op),
+      value: root.value,
+    };
+  }
+
   let index = 0;
 
   const readGroup = (): QueryGroup => {
